@@ -1,4 +1,6 @@
 
+import re
+
 def format_names(col_names):
     """
     Formats a list of column names:

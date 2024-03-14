@@ -1,5 +1,4 @@
 import pandas as pd
-import re
 from preprocessing._utils import *
 
 # Load datasets
@@ -58,12 +57,14 @@ relevant_nutrients = ['Protein', 'Energy', 'Fiber, total dietary', 'Iron, Fe', '
 # Add condition to filter for rows with relevant_nutrients
 filtered_lf_merged = filtered_lf_merged[filtered_lf_merged['nutrient_name'].isin(relevant_nutrients)]
 
-# Drop rows where 'nutrient_name' is 'Energy' and 'nutrient_unit' is 'kJ'
-filtered_lf_merged = filtered_lf_merged.drop(filtered_lf_merged[(filtered_lf_merged['nutrient_name'] == 'Energy') & (filtered_lf_merged['nutrient_unit'] == 'kJ')].index)
+# Alter nutrient_name for Energy to include units
+filtered_lf_merged.loc[(filtered_lf_merged['nutrient_name'] == 'Energy') & (filtered_lf_merged['nutrient_unit'] == 'kJ'), 'nutrient_name'] = 'Energy kJ'
+filtered_lf_merged.loc[(filtered_lf_merged['nutrient_name'] == 'Energy') & (filtered_lf_merged['nutrient_unit'] == 'KCAL'), 'nutrient_name'] = 'Energy KCAL'
 
 filtered_lf_merged['multiplier'] = 0
 
 filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
+filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'kJ', 'multiplier'] = round(1/100, 10)
 filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
 filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
 filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
@@ -88,7 +89,20 @@ lst_col_names = format_names(lst_col_names)
 # Assign the formatted column names back to the df
 lf_merged_pivot.columns = lst_col_names
 
-# TODO...
 # Reorder columns & remove energy_kJ
 lf_merged_pivot = lf_merged_pivot[[
-]]
+                        'fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 
+                        'portion_gram_weight', 'energy_kcal', 'energy_kj', 'protein', 'total_lipid_fat', 'carbohydrate_by_difference', 
+                        'fiber_total_dietary', 'sugars_total', 'cholesterol', 'sodium_na', 'potassium_k', 'calcium_ca', 
+                        'iron_fe', 'magnesium_mg', 'phosphorus_p', 'copper_cu', 'manganese_mn', 'selenium_se', 'zinc_zn', 
+                        'fluoride_f', 'retinol',  'vitamin_a_rae', 'vitamin_b12', 'vitamin_b12_added', 'vitamin_b6', 
+                        'vitamin_c_total_ascorbic_acid', 'vitamin_d2_ergocalciferol', 'vitamin_d3_cholecalciferol', 
+                        'vitamin_e_alphatocopherol', 'vitamin_e_added', 'vitamin_k_dihydrophylloquinone', 'vitamin_k_menaquinone4', 
+                        'vitamin_k_phylloquinone', 'thiamin', 'riboflavin', 'niacin', 'pantothenic_acid', 'vitamin_b12_added', 
+                        'folate_dfe', 'folate_food', 'folate_total', 'folic_acid', 'alanine', 'alcohol_ethyl', 'arginine', 
+                        'aspartic_acid', 'betaine', 'caffeine', 'carotene_beta', 'choline_total', 'cystine', 'fatty_acids_total_monounsaturated', 
+                        'fatty_acids_total_polyunsaturated', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fructose', 
+                        'galactose', 'glucose', 'glutamic_acid', 'glycine', 'histidine',  'isoleucine', 'lactose', 'leucine', 
+                        'lysine', 'maltose', 'methionine', 'phenylalanine', 'proline', 'serine', 'starch', 'sucrose', 'theobromine', 
+                        'threonine', 'tryptophan', 'tyrosine', 'valine'
+                    ]]
