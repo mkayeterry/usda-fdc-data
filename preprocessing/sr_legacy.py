@@ -27,7 +27,7 @@ lf_food_nutrient.rename(columns={'id': 'food_nutrient_id', 'amount': 'nutrient_a
 lf_food.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
 lf_nutrient.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
 lf_category.rename(columns={'id': 'category_id', 'description': 'category_description'}, inplace=True)
-lf_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_unit', 'gram_weight': 'portion_gram_weight'}, inplace=True)
+lf_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
 
 # Merge datasets
 lf_merged = pd.merge(lf_food_nutrient, lf_food, on='fdc_id', how='left')
@@ -36,7 +36,7 @@ lf_merged = pd.merge(lf_merged, lf_category, on='category_id', how='left')
 lf_merged = pd.merge(lf_merged, lf_portion, on='fdc_id', how='left')
 
 # Filter to only relevant columns
-filtered_lf_merged = lf_merged[['fdc_id', 'food_description', 'category_description', 'nutrient_name', 'nutrient_amount', 'nutrient_unit', 'portion_amount', 'portion_unit', 'portion_gram_weight']]
+filtered_lf_merged = lf_merged[['fdc_id', 'food_description', 'category_description', 'nutrient_name', 'nutrient_amount', 'nutrient_unit', 'portion_amount', 'portion_modifier', 'portion_gram_weight']]
 
 # List of nutrients consumers care about
 relevant_nutrients = ['Protein', 'Energy', 'Fiber, total dietary', 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 
@@ -71,7 +71,7 @@ filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'UG', 'multiplier'
 
 # Pivot the table by unique combinations of 'fdc_id', 'food_description', 'food_category_description' on 'nutrient_name' and 'nuntrient_unit
 lf_merged_pivot = pd.pivot_table(filtered_lf_merged,
-                                 index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 'portion_gram_weight'],
+                                 index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_modifier', 'portion_gram_weight'],
                                  columns=['nutrient_name'],
                                  values='nutrient_amount').reset_index()
 
@@ -91,7 +91,7 @@ lf_merged_pivot.columns = lst_col_names
 
 # Reorder columns & remove energy_kJ
 lf_merged_pivot = lf_merged_pivot[[
-                        'fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 
+                        'fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_modifier', 
                         'portion_gram_weight', 'energy_kcal', 'energy_kj', 'protein', 'total_lipid_fat', 'carbohydrate_by_difference', 
                         'fiber_total_dietary', 'sugars_total', 'cholesterol', 'sodium_na', 'potassium_k', 'calcium_ca', 
                         'iron_fe', 'magnesium_mg', 'phosphorus_p', 'copper_cu', 'manganese_mn', 'selenium_se', 'zinc_zn', 
@@ -106,3 +106,4 @@ lf_merged_pivot = lf_merged_pivot[[
                         'lysine', 'maltose', 'methionine', 'phenylalanine', 'proline', 'serine', 'starch', 'sucrose', 'theobromine', 
                         'threonine', 'tryptophan', 'tyrosine', 'valine'
                     ]]
+
