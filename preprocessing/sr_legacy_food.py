@@ -71,11 +71,13 @@ def process_legacy_foods(data_paths):
     filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
     filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
 
+    filtered_lf_merged['per_g_amt'] = round(filtered_lf_merged.nutrient_amount * filtered_lf_merged.multiplier, 10)
+
     # Pivot the table by unique combinations of 'fdc_id', 'food_description', 'food_category_description' on 'nutrient_name' and 'nuntrient_unit
     lf_merged_pivot = pd.pivot_table(filtered_lf_merged,
                                     index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_modifier', 'portion_gram_weight'],
                                     columns=['nutrient_name'],
-                                    values='nutrient_amount').reset_index()
+                                    values='per_g_amt').reset_index()
 
     # Fill NaN nutrient values with zeros
     for col in lf_merged_pivot.columns:

@@ -4,11 +4,11 @@ from preprocessing._utils import *
 def process_foundation_foods(data_paths):
 
     # Load datasets
-    lf_food_nutrient = pd.read_csv(data_paths['lf_food_nutrient'], low_memory=False)
-    lf_food = pd.read_csv(data_paths['lf_food'], low_memory=False)
-    lf_nutrient = pd.read_csv(data_paths['lf_nutrient'], low_memory=False)
-    lf_category = pd.read_csv(data_paths['lf_category'], low_memory=False)
-    lf_portion = pd.read_csv(data_paths['lf_portion'], low_memory=False)
+    ff_food_nutrient = pd.read_csv(data_paths['ff_food_nutrient'], low_memory=False)
+    ff_food = pd.read_csv(data_paths['ff_food'], low_memory=False)
+    ff_nutrient = pd.read_csv(data_paths['ff_nutrient'], low_memory=False)
+    ff_category = pd.read_csv(data_paths['ff_category'], low_memory=False)
+    ff_portion = pd.read_csv(data_paths['ff_portion'], low_memory=False)
 
     # Specify columns to keep for each dataframe
     ff_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
@@ -71,14 +71,16 @@ def process_foundation_foods(data_paths):
     filtered_ff_merged.loc[filtered_ff_merged['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
     filtered_ff_merged.loc[filtered_ff_merged['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
 
+    filtered_ff_merged['per_g_amt'] = round(filtered_ff_merged.nutrient_amount * filtered_ff_merged.multiplier, 10)
+
     # Pivot the table by unique combinations of 'fdc_id', 'food_description', 'food_category_description' on 'nutrient_name' and 'nuntrient_unit
     ff_merged_pivot = pd.pivot_table(filtered_ff_merged,
                                     index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
                                     columns=['nutrient_name'],
-                                    values='nutrient_amount').reset_index()
+                                    values='per_g_amt').reset_index()
 
     # Fill NaN nutrient values with zeros
-    for col in ff_merged_pivot.columns:
+    for col in lf_merged_pivot.columns:
         if col in relevant_nutrients:
             ff_merged_pivot[col] = ff_merged_pivot[col].fillna(0)
 
@@ -110,5 +112,5 @@ def process_foundation_foods(data_paths):
                         ]]
 
 
-    return lf_merged_pivot
+    return ff_merged_pivot
 

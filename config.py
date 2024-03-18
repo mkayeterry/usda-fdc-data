@@ -40,11 +40,20 @@ class Config:
 
 
     FOUNDATION_FOOD_PATHS = {
-                "lf_food_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv'), 
-                "lf_food": os.path.join(FOUNDATION_FOOD_DIR, 'food.csv'), 
-                "lf_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
-                "lf_category": os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv'), 
-                "lf_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
+                "ff_food_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv'), 
+                "ff_food": os.path.join(FOUNDATION_FOOD_DIR, 'food.csv'), 
+                "ff_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
+                "ff_category": os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv'), 
+                "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
+                }
+
+    SURVEY_FOOD_PATHS = {
+                "sf_food_nutrient": os.path.join(SURVEY_FOOD_DIR, 'food_nutrient.csv'), 
+                "sf_food": os.path.join(SURVEY_FOOD_DIR, 'food.csv'), 
+                "sf_nutrient": os.path.join(SURVEY_FOOD_DIR, 'nutrient.csv'), 
+                "sf_category": os.path.join(SURVEY_FOOD_DIR, 'wweia_food_category.csv'), 
+                "sf_portion": os.path.join(SURVEY_FOOD_DIR, 'food_portion.csv'), 
+                "sf_fndds_food": os.path.join(SURVEY_FOOD_DIR, 'survey_fndds_food.csv')
                 }
 
 
