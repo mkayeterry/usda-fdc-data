@@ -1,7 +1,7 @@
 import pandas as pd
 from preprocessing._utils import *
 
-def process_legacy_foods(data_paths):
+def process_legacy_food(data_paths):
 
     # Load datasets
     lf_food_nutrient = pd.read_csv(data_paths['lf_food_nutrient'], low_memory=False)

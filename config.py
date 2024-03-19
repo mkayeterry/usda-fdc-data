@@ -12,22 +12,23 @@ class Config:
 
     # Define paths for raw and output directories
     BASE_DIR = os.path.join(BASE_DIR_PATH, BASE_DIR_NAME)
+    FDC_ALL_DIR = os.path.join(BASE_DIR, 'fdc_all')
     FOUNDATION_FOOD_DIR = os.path.join(BASE_DIR, 'foundation_food_indiv')
     SR_LEGACY_FOOD_DIR = os.path.join(BASE_DIR, 'sr_legacy_food_indiv')
-    SURVEY_FOOD_DIR = os.path.join(BASE_DIR, 'survey_food_indiv')
+    BRANDED_FOOD_DIR = os.path.join(BASE_DIR, 'branded_food_indiv')
     OUTPUT_DIR = os.path.join(BASE_DIR, 'fdc_output')
     PROCESSED_DIR = os.path.join(OUTPUT_DIR, 'indiv_processed')
 
-    # Create a list of directories to check and create
-    directories = [BASE_DIR, FOUNDATION_FOOD_DIR, SR_LEGACY_FOOD_DIR, SURVEY_FOOD_DIR, OUTPUT_DIR, PROCESSED_DIR]
+    # # Create a list of directories to check and create
+    # directories = [BASE_DIR, FOUNDATION_FOOD_DIR, SR_LEGACY_FOOD_DIR, BRANDED_FOOD_DIR, OUTPUT_DIR, PROCESSED_DIR]
 
-    # Loop through the list of directories and create them if they don't exist
-    for directory in directories:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+    # # Loop through the list of directories and create them if they don't exist
+    # for directory in directories:
+    #     if not os.path.exists(directory):
+    #         os.makedirs(directory)
 
-            # Print directories, if created
-            print(f"Directory created: {directory}")
+    #         # Print directories, if created
+    #         print(f"Directory created: {directory}")
 
 
     SR_LEGACY_FOOD_PATHS = {
@@ -43,17 +44,16 @@ class Config:
                 "ff_food_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv'), 
                 "ff_food": os.path.join(FOUNDATION_FOOD_DIR, 'food.csv'), 
                 "ff_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
-                "ff_category": os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv'), 
+                "ff_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
                 "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
                 }
 
-    SURVEY_FOOD_PATHS = {
-                "sf_food_nutrient": os.path.join(SURVEY_FOOD_DIR, 'food_nutrient.csv'), 
-                "sf_food": os.path.join(SURVEY_FOOD_DIR, 'food.csv'), 
-                "sf_nutrient": os.path.join(SURVEY_FOOD_DIR, 'nutrient.csv'), 
-                "sf_category": os.path.join(SURVEY_FOOD_DIR, 'wweia_food_category.csv'), 
-                "sf_portion": os.path.join(SURVEY_FOOD_DIR, 'food_portion.csv'), 
-                "sf_fndds_food": os.path.join(SURVEY_FOOD_DIR, 'survey_fndds_food.csv')
+    BRANDED_FOOD_PATHS = {
+                "bf_food_nutrient": os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv'), 
+                "bf_food": os.path.join(BRANDED_FOOD_DIR, 'food.csv'), 
+                "bf_nutrient": os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv'), 
+                "bf_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
+                "bf_portion": os.path.join(FDC_ALL_DIR, 'food_portion.csv')
                 }
 
 
