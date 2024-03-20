@@ -57,7 +57,7 @@ def process_foundation_food(data_paths):
                     ]
 
     # Add condition to filter for rows with relevant_nutrients
-    filtered_ff_merged = filtered_ff_merged[filtered_ff_merged['nutrient_name'].isin(relevant_nutrients)]
+    filtered_ff_merged = filtered_ff_merged[filtered_ff_merged['nutrient_name'].isin(relevant_nutrients) | filtered_ff_merged['nutrient_name'].isna()]
 
     # Alter nutrient_name for Energy to include units
     filtered_ff_merged.loc[(filtered_ff_merged['nutrient_name'] == 'Energy') & (filtered_ff_merged['nutrient_unit'] == 'kJ'), 'nutrient_name'] = 'Energy kJ'
