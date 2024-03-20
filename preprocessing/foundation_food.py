@@ -10,6 +10,8 @@ def process_foundation_food(data_paths):
     ff_category = pd.read_csv(data_paths['ff_category'], low_memory=False)
     ff_portion = pd.read_csv(data_paths['ff_portion'], low_memory=False)
 
+    len(ff_food.description.unique())
+
     # Specify columns to keep for each dataframe
     ff_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
     ff_food_cols = ['fdc_id', 'description', 'food_category_id']

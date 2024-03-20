@@ -9,7 +9,7 @@ def process_branded_food(data_paths):
     bf_nutrient = pd.read_csv(data_paths['bf_nutrient'], low_memory=False)
     bf_category = pd.read_csv(data_paths['bf_category'], low_memory=False)
     bf_portion = pd.read_csv(data_paths['bf_portion'], low_memory=False)
-
+bf_food.iloc[0]
     # Specify columns to keep for each dataframe
     bf_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
     bf_food_cols = ['fdc_id', 'description', 'food_category_id']
