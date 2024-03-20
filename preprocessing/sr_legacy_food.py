@@ -32,7 +32,7 @@ def process_legacy_food(data_paths):
     lf_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
 
     # Merge datasets
-    lf_merged = pd.merge(lf_food_nutrient, lf_food, on='fdc_id', how='left')
+    lf_merged = pd.merge(lf_food, lf_food_nutrient, on='fdc_id', how='left')
     lf_merged = pd.merge(lf_merged, lf_nutrient, on='nutrient_id', how='left')
     lf_merged = pd.merge(lf_merged, lf_category, on='category_id', how='left')
     lf_merged = pd.merge(lf_merged, lf_portion, on='fdc_id', how='left')

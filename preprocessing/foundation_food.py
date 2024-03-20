@@ -10,8 +10,6 @@ def process_foundation_food(data_paths):
     ff_category = pd.read_csv(data_paths['ff_category'], low_memory=False)
     ff_portion = pd.read_csv(data_paths['ff_portion'], low_memory=False)
 
-    len(ff_food.description.unique())
-
     # Specify columns to keep for each dataframe
     ff_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
     ff_food_cols = ['fdc_id', 'description', 'food_category_id']
@@ -34,7 +32,7 @@ def process_foundation_food(data_paths):
     ff_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'measure_unit_id': 'portion_unit', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
 
     # Merge datasets
-    ff_merged = pd.merge(ff_food_nutrient, ff_food, on='fdc_id', how='left')
+    ff_merged = pd.merge(ff_food, ff_food_nutrient, on='fdc_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_nutrient, on='nutrient_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_category, on='category_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_portion, on='fdc_id', how='left')
