@@ -46,8 +46,7 @@ class Config:
                 "ff_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
                 "ff_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
                 "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv'), 
-                "ff_sub_sample_food": os.path.join(FOUNDATION_FOOD_DIR, 'sub_sample_food.csv'), 
-                "ff_sub_sample_result": os.path.join(FOUNDATION_FOOD_DIR, 'sub_sample_result.csv')
+                'ff_measure_unit': os.path.join(FOUNDATION_FOOD_DIR, 'measure_unit.csv')
                 }
 
     BRANDED_FOOD_PATHS = {
