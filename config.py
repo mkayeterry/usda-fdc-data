@@ -1,17 +1,17 @@
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+# load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 class Config:
 
     # Base directory and path configurations
-    BASE_DIR_NAME = 'fdc_data'
-    BASE_DIR_PATH = os.getenv('BASE_DIR_PATH')
+    # BASE_DIR_NAME = 'fdc_data'
+    # BASE_DIR_PATH = os.getenv('BASE_DIR_PATH')
 
     # Define paths for raw and output directories
-    BASE_DIR = os.path.join(BASE_DIR_PATH, BASE_DIR_NAME)
+    BASE_DIR = 'fdc_data'
     FDC_ALL_DIR = os.path.join(BASE_DIR, 'fdc_all')
     FOUNDATION_FOOD_DIR = os.path.join(BASE_DIR, 'foundation_food_indiv')
     SR_LEGACY_FOOD_DIR = os.path.join(BASE_DIR, 'sr_legacy_food_indiv')
@@ -45,7 +45,9 @@ class Config:
                 "ff_food": os.path.join(FOUNDATION_FOOD_DIR, 'food.csv'), 
                 "ff_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
                 "ff_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
-                "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
+                "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv'), 
+                "ff_sub_sample_food": os.path.join(FOUNDATION_FOOD_DIR, 'sub_sample_food.csv'), 
+                "ff_sub_sample_result": os.path.join(FOUNDATION_FOOD_DIR, 'sub_sample_result.csv')
                 }
 
     BRANDED_FOOD_PATHS = {

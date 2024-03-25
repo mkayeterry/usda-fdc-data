@@ -28,3 +28,4 @@ def format_names(col_names):
         formatted_names.append(formatted_name)
     
     return formatted_names
+    

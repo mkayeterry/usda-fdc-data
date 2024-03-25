@@ -9,6 +9,8 @@ def process_foundation_food(data_paths):
     ff_nutrient = pd.read_csv(data_paths['ff_nutrient'], low_memory=False)
     ff_category = pd.read_csv(data_paths['ff_category'], low_memory=False)
     ff_portion = pd.read_csv(data_paths['ff_portion'], low_memory=False)
+    ff_sub_sample_food = pd.read_csv(data_paths['ff_sub_sample_food'], low_memory=False)
+    ff_sub_sample_result = pd.read_csv(data_paths['ff_sub_sample_result'], low_memory=False)
 
     # Specify columns to keep for each dataframe
     ff_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
@@ -16,6 +18,8 @@ def process_foundation_food(data_paths):
     ff_nutrient_cols = ['id', 'name', 'unit_name', 'nutrient_nbr']
     ff_category_cols = ['id', 'description']
     ff_portion_cols = ['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']
+    ff_sub_sample_food_cols = ['fdc_id', 'fdc_id_of_sample_food']
+    ff_sub_sample_result_cols = ['food_nutrient_id', 'nutrient_name']
 
     # Execute column selection
     ff_food_nutrient = ff_food_nutrient[ff_food_nutrient_cols]
@@ -23,6 +27,8 @@ def process_foundation_food(data_paths):
     ff_nutrient = ff_nutrient[ff_nutrient_cols]
     ff_category = ff_category[ff_category_cols]
     ff_portion = ff_portion[ff_portion_cols]
+    ff_sub_sample_food = ff_sub_sample_food[ff_sub_sample_food_cols]
+    ff_sub_sample_result = ff_sub_sample_result[ff_sub_sample_result_cols]
 
     # Rename columns before merge
     ff_food_nutrient.rename(columns={'id': 'food_nutrient_id', 'amount': 'nutrient_amount'}, inplace=True)
@@ -30,9 +36,11 @@ def process_foundation_food(data_paths):
     ff_nutrient.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
     ff_category.rename(columns={'id': 'category_id', 'description': 'category_description'}, inplace=True)
     ff_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'measure_unit_id': 'portion_unit', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
+    ff_sub_sample_result.rename(columns={'food_nutrient_id': 'nutrient_id'}, inplace=True)
 
     # Merge datasets
     ff_merged = pd.merge(ff_food, ff_food_nutrient, on='fdc_id', how='left')
+    ff_merged = pd.merge(ff_merged, ff_sub_sample_result, on='nutrient_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_nutrient, on='nutrient_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_category, on='category_id', how='left')
     ff_merged = pd.merge(ff_merged, ff_portion, on='fdc_id', how='left')
