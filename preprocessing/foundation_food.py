@@ -73,10 +73,10 @@ def process_foundation_food(data_paths):
 
     # Filter to only relevant columns
     filtered_ff_merged = ff_merged[['fdc_id', 'food_description', 'category_description', 'nutrient_name', 'nutrient_amount', 'nutrient_unit', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight']]
-# filtered_ff_merged.to_csv(os.path.join(Config.PROCESSED_DIR, 'pre_hummus_filter.csv'))
+
     # TODO hummus filtering
     filtered_ff_merged = ff_merged[ff_merged['food_description'].str.contains('hummus', case=False)]
-# filtered_ff_merged.to_csv(os.path.join(Config.PROCESSED_DIR, 'post_hummus_filter.csv'))
+
 
     # List of nutrients consumers care about
     relevant_nutrients = ['Protein', 'Energy', 'Fiber, total dietary', 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 
@@ -93,10 +93,10 @@ def process_foundation_food(data_paths):
                         'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
                         'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)'
                     ]
-# filtered_ff_merged.to_csv(os.path.join(Config.PROCESSED_DIR, 'pre_rel_nut_filter.csv'))
+
     # Add condition to filter for rows with relevant_nutrients
     filtered_ff_merged = filtered_ff_merged[filtered_ff_merged['nutrient_name'].isin(relevant_nutrients) | filtered_ff_merged['nutrient_name'].str.contains('NA') | filtered_ff_merged['nutrient_name'].isna()]
-# filtered_ff_merged.to_csv(os.path.join(Config.PROCESSED_DIR, 'post_rel_nut_filter.csv'))
+
     # Alter nutrient_name for Energy to include units
     filtered_ff_merged.loc[(filtered_ff_merged['nutrient_name'] == 'Energy') & (filtered_ff_merged['nutrient_unit'] == 'kJ'), 'nutrient_name'] = 'Energy kJ'
     filtered_ff_merged.loc[(filtered_ff_merged['nutrient_name'] == 'Energy') & (filtered_ff_merged['nutrient_unit'] == 'KCAL'), 'nutrient_name'] = 'Energy KCAL'
@@ -110,7 +110,7 @@ def process_foundation_food(data_paths):
     filtered_ff_merged.loc[filtered_ff_merged['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
 
     filtered_ff_merged['per_g_amt'] = round(filtered_ff_merged.nutrient_amount * filtered_ff_merged.multiplier, 10)
-# filtered_ff_merged.to_csv(os.path.join(Config.PROCESSED_DIR, 'pre_pivot.csv'))
+
     # Pivot the table by unique combinations of 'fdc_id', 'food_description', 'food_category_description' on 'nutrient_name' and 'nuntrient_unit
     ff_merged_pivot = pd.pivot_table(filtered_ff_merged,
                                     index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
@@ -121,7 +121,7 @@ def process_foundation_food(data_paths):
     for col in ff_merged_pivot.columns:
         if col in relevant_nutrients:
             ff_merged_pivot[col] = ff_merged_pivot[col].fillna(0)
-# ff_merged_pivot.to_csv(os.path.join(Config.PROCESSED_DIR, 'post_pivot.csv'))
+
     # Convert the column names to a list
     lst_col_names = ff_merged_pivot.columns.to_list()
 
@@ -149,6 +149,6 @@ def process_foundation_food(data_paths):
     #                         'threonine', 'tryptophan', 'tyrosine', 'valine'
     #                     ]]
 
-# ff_merged_pivot.to_csv(os.path.join(Config.PROCESSED_DIR, 'post_formatting.csv'))
+
     return ff_merged_pivot
 
