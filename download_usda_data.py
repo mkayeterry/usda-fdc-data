@@ -5,7 +5,7 @@ import zipfile
 
 BASE_DIR = 'fdc_data'
 
-# make the directory if it doesn't exist
+# Make the directory if it doesn't exist
 if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
 
@@ -13,17 +13,17 @@ if not os.path.exists(BASE_DIR):
 USDA_URL   = "https://fdc.nal.usda.gov/download-datasets.html"
 URL_PREFIX = "https://fdc.nal.usda.gov"
 
-# get USDA HTML content
+# Get USDA HTML content
 html_content = requests.get(USDA_URL).text
 soup = BeautifulSoup(html_content, 'html.parser')
 
-# find table with the H2 tag "Latest Downloads" above it
+# Find table with the H2 tag "Latest Downloads" above it
 latest_downloads_table = soup.find('h2', text='Latest Downloads').find_next('table')
 
-# find all <a> tags in the table
+# Find all <a> tags in the table
 download_a_tags = latest_downloads_table.find_all('a', href = True)
 
-# extract the href attribute from each <a> tag
+# Extract the href attribute from each <a> tag
 csv_download_links = [URL_PREFIX + link['href'] for link in download_a_tags if 'csv' in link['href'] and "survey_food" not in link["href"]]
 json_download_links = [URL_PREFIX + link['href'] for link in download_a_tags if 'json' in link['href'] and "survey_food" not in link["href"]]
 
@@ -33,11 +33,9 @@ def download_url(url, save_path, chunk_size=128):
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
-csv_download_links.pop(2)
-
 if __name__ == "__main__":
 
-    # download the csv files
+    # Download the csv files
     for url in csv_download_links:
         filename = os.path.basename(url)
         filepath = os.path.join(BASE_DIR, filename)
@@ -49,5 +47,5 @@ if __name__ == "__main__":
         with zipfile.ZipFile(filepath, 'r') as zip:
             zip.extractall(BASE_DIR)
 
-        # then delete the zip file
+        # Delete the zip file
         os.remove(filepath)

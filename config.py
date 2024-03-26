@@ -11,8 +11,10 @@ class Config:
 
     # Define paths for raw and output directories
     BASE_DIR = 'fdc_data'
-    OUTPUT_DIR = os.path.join(BASE_DIR, 'fdc_output')
+    if not os.path.exists(BASE_DIR):
+        os.makedirs(BASE_DIR)
 
+    OUTPUT_DIR = os.path.join(BASE_DIR, 'fdc_output')
     if not os.path.exists(OUTPUT_DIR):
          os.makedirs(OUTPUT_DIR)
 
