@@ -4,111 +4,127 @@ from preprocessing._utils import *
 def process_legacy_food(data_paths):
 
     # Load datasets
-    lf_food_nutrient = pd.read_csv(data_paths['lf_food_nutrient'], low_memory=False)
-    lf_food = pd.read_csv(data_paths['lf_food'], low_memory=False)
-    lf_nutrient = pd.read_csv(data_paths['lf_nutrient'], low_memory=False)
-    lf_category = pd.read_csv(data_paths['lf_category'], low_memory=False)
-    lf_portion = pd.read_csv(data_paths['lf_portion'], low_memory=False)
+    food_nutrient = pd.read_csv(data_paths['lf_food_nutrient'], low_memory=False)
+    food = pd.read_csv(data_paths['lf_food'], low_memory=False)
+    nutrient = pd.read_csv(data_paths['lf_nutrient'], low_memory=False)
+    category = pd.read_csv(data_paths['lf_category'], low_memory=False)
+    portion = pd.read_csv(data_paths['lf_portion'], low_memory=False)
+    measure_unit = pd.read_csv(data_paths['lf_measure_unit'], low_memory=False)
 
-    # Specify columns to keep
-    lf_food_nutrient_cols = ['id', 'fdc_id', 'nutrient_id', 'amount', 'derivation_id']
-    lf_food_cols = ['fdc_id', 'description', 'food_category_id']
-    lf_nutrient_cols = ['id', 'name', 'unit_name', 'nutrient_nbr']
-    lf_category_cols = ['id', 'description']
-    lf_portion_cols = ['id', 'fdc_id', 'amount', 'modifier', 'gram_weight']
+    # Specify columns to keep for each dataframe
+    food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
+    food_cols = ['fdc_id', 'description', 'food_category_id']
+    nutrient_cols = ['id', 'name', 'unit_name']
+    category_cols = ['id', 'description']
+    portion_cols = ['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']
+    measure_unit_cols = ['id', 'name']
 
     # Execute column selection
-    lf_food_nutrient = lf_food_nutrient[lf_food_nutrient_cols]
-    lf_food = lf_food[lf_food_cols]
-    lf_nutrient = lf_nutrient[lf_nutrient_cols]
-    lf_category = lf_category[lf_category_cols]
-    lf_portion = lf_portion[lf_portion_cols]
+    food_nutrient = food_nutrient[food_nutrient_cols]
+    food = food[food_cols]
+    nutrient = nutrient[nutrient_cols]
+    category = category[category_cols]
+    portion = portion[portion_cols]
+    measure_unit = measure_unit[measure_unit_cols]
 
-    # Rename columns before merge
-    lf_food_nutrient.rename(columns={'id': 'food_nutrient_id', 'amount': 'nutrient_amount'}, inplace=True)
-    lf_food.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
-    lf_nutrient.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
-    lf_category.rename(columns={'id': 'category_id', 'description': 'category_description'}, inplace=True)
-    lf_portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
+    # Rename columns
+    food_nutrient.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
+    food.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
+    nutrient.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
+    category.rename(columns={'id': 'category_id', 'description': 'category_description'}, inplace=True)
+    portion.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
+    measure_unit.rename(columns={'id': 'measure_unit_id', 'name': 'portion_unit'}, inplace=True)
 
-    # Merge datasets
-    lf_merged = pd.merge(lf_food, lf_food_nutrient, on='fdc_id', how='left')
-    lf_merged = pd.merge(lf_merged, lf_nutrient, on='nutrient_id', how='left')
-    lf_merged = pd.merge(lf_merged, lf_category, on='category_id', how='left')
-    lf_merged = pd.merge(lf_merged, lf_portion, on='fdc_id', how='left')
+    # Set data types for all columns, and fill NA values
+    food_nutrient['fdc_id'] = food_nutrient['fdc_id'].fillna(0).astype(int)
+    food_nutrient['nutrient_id'] = food_nutrient['nutrient_id'].fillna(0).astype(int)
+    food_nutrient['nutrient_amount'] = food_nutrient['nutrient_amount'].fillna(0).astype(float)
 
-    # Filter to only relevant columns
-    filtered_lf_merged = lf_merged[['fdc_id', 'food_description', 'category_description', 'nutrient_name', 'nutrient_amount', 'nutrient_unit', 'portion_amount', 'portion_modifier', 'portion_gram_weight']]
+    food['fdc_id'] = food['fdc_id'].fillna(0).astype(int)
+    food['food_description'] = food['food_description'].fillna('NA').astype(str)
+    food['category_id'] = food['category_id'].fillna(0).astype(int)
+
+    nutrient['nutrient_id'] = nutrient['nutrient_id'].fillna(0).astype(int)
+    nutrient['nutrient_name'] = nutrient['nutrient_name'].fillna('NA').astype(str)
+    nutrient['nutrient_unit'] = nutrient['nutrient_unit'].fillna('NA').astype(str)
+
+    category['category_id'] = category['category_id'].fillna(0).astype(int)
+    category['category_description'] = category['category_description'].fillna('NA').astype(str)
+
+    portion['portion_id'] = portion['portion_id'].fillna(0).astype(int)
+    portion['fdc_id'] = portion['fdc_id'].fillna(0).astype(int)
+    portion['portion_amount'] = portion['portion_amount'].fillna(0).astype(float)
+    portion['measure_unit_id'] = portion['measure_unit_id'].fillna(0).astype(int)
+    portion['portion_modifier'] = portion['portion_modifier'].fillna('NA').astype(str)
+    portion['portion_gram_weight'] = portion['portion_gram_weight'].fillna(0).astype(float)
+
+    measure_unit['measure_unit_id'] = measure_unit['measure_unit_id'].fillna(0).astype(int)
+    measure_unit['portion_unit'] = measure_unit['portion_unit'].fillna('NA').astype(str)
+
+    # food Columns:           ['fdc_id', 'category_id', 'food_description']
+    # category Columns:       ['category_id', 'category_description']
+
+    # food_nutrient Columns:  ['fdc_id', 'nutrient_id', 'nutrient_amount']
+    # nutrient Columns:       ['nutrient_id', 'nutrient_name', 'nutrient_unit']
+
+    # portion Columns:        ['fdc_id', 'measure_unit_id', 'portion_id', 'portion_amount', 'portion_modifier', 'portion_gram_weight']
+    # measure_unit Columns:   ['measure_unit_id', 'portion_unit']
+
+    foods_merged = pd.merge(food, category, on='category_id', how='left')
+    foods_merged = foods_merged.drop(['category_id'], axis=1)
+
+    nutrients_merged = pd.merge(food_nutrient, nutrient, on='nutrient_id', how='left')
+    nutrients_merged = nutrients_merged.drop(['nutrient_id'], axis=1)
+
+    portions_merged = pd.merge(portion, measure_unit, on='measure_unit_id', how='left')
+    portions_merged = portions_merged.drop(['measure_unit_id'], axis=1)
+
+    foods_and_nutrients_merged = pd.merge(foods_merged, nutrients_merged, on='fdc_id', how='left')
+
+    full_foods_merged = pd.merge(foods_and_nutrients_merged, portions_merged, on='fdc_id', how='inner')
+    full_foods_merged = full_foods_merged.drop(['portion_id'], axis=1)
 
     # List of nutrients consumers care about
-    relevant_nutrients = ['Protein', 'Energy', 'Fiber, total dietary', 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 
-                        'Fatty acids, total trans', 'Fatty acids, total saturated', 'Total lipid (fat)',
-                        'Carbohydrate, by difference', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
-                        'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
-                        'Folate, DFE', 'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
-                        'Folate, food', 'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
-                        'Starch', 'Fructose', 'Lactose', 'Alcohol, ethyl', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
-                        'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Vitamin B-12, added', 'Valine',
-                        'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Vitamin E, added', 'Sucrose', 'Glucose', 'Maltose', 'Caffeine', 
-                        'Theobromine', 'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
-                        'Vitamin B-6', 'Folic acid', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
-                        'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 'Fluoride, F',
-                        'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)'
-                    ]
+    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
+                        # 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
+                        # 'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
+                        # 'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
+                        # 'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
+                        # 'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
+                        # 'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
+                        # 'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
+                        # 'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
+                        # 'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
+                        # 'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
+                        # 'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
+                        # 'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)'
 
     # Add condition to filter for rows with relevant_nutrients
-    filtered_lf_merged = filtered_lf_merged[filtered_lf_merged['nutrient_name'].isin(relevant_nutrients)]
+    full_foods_filtered = full_foods_merged[full_foods_merged['nutrient_name'].isin(relevant_nutrients)]
+    full_foods_filtered = full_foods_filtered[full_foods_filtered['nutrient_unit'] != 'kJ']
 
-    # Alter nutrient_name for Energy to include units
-    filtered_lf_merged.loc[(filtered_lf_merged['nutrient_name'] == 'Energy') & (filtered_lf_merged['nutrient_unit'] == 'kJ'), 'nutrient_name'] = 'Energy kJ'
-    filtered_lf_merged.loc[(filtered_lf_merged['nutrient_name'] == 'Energy') & (filtered_lf_merged['nutrient_unit'] == 'KCAL'), 'nutrient_name'] = 'Energy KCAL'
+    # Add new column for per gram amount for various nutrients
+    full_foods_filtered['multiplier'] = 0
+    full_foods_filtered.loc[full_foods_filtered['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
+    full_foods_filtered.loc[full_foods_filtered['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
+    full_foods_filtered.loc[full_foods_filtered['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
+    full_foods_filtered.loc[full_foods_filtered['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
+    full_foods_filtered['per_gram_amt'] = round(full_foods_filtered.nutrient_amount * full_foods_filtered.multiplier, 10)
+    full_foods_filtered.drop(['multiplier'], axis=1, inplace=True)
 
-    filtered_lf_merged['multiplier'] = 0
+    # Aggregate rows with equal values
+    full_foods_agg = full_foods_filtered.groupby(['food_description', 'category_description', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
-    filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
-    filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'kJ', 'multiplier'] = round(1/100, 10)
-    filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
-    filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
-    filtered_lf_merged.loc[filtered_lf_merged['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
-
-    filtered_lf_merged['per_g_amt'] = round(filtered_lf_merged.nutrient_amount * filtered_lf_merged.multiplier, 10)
-
-    # Pivot the table by unique combinations of 'fdc_id', 'food_description', 'food_category_description' on 'nutrient_name' and 'nuntrient_unit
-    lf_merged_pivot = pd.pivot_table(filtered_lf_merged,
-                                    index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_modifier', 'portion_gram_weight'],
+    full_foods_pivot = pd.pivot_table(full_foods_agg,
+                                    index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
                                     columns=['nutrient_name'],
-                                    values='per_g_amt').reset_index()
+                                    values='per_gram_amt').reset_index()
 
-    # Fill NaN nutrient values with zeros
-    for col in lf_merged_pivot.columns:
-        if col in relevant_nutrients:
-            lf_merged_pivot[col] = lf_merged_pivot[col].fillna(0)
-
-    # Convert the column names to a list
-    lst_col_names = lf_merged_pivot.columns.to_list()
+    full_foods_pivot['cal_per_serv'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
 
     # Format the column names using the format_names function
+    lst_col_names = full_foods_pivot.columns.to_list()
     lst_col_names = format_names(lst_col_names)
+    full_foods_pivot.columns = lst_col_names
 
-    # Assign the formatted column names back to the df
-    lf_merged_pivot.columns = lst_col_names
-
-    # Reorder columns & remove energy_kJ
-    lf_merged_pivot = lf_merged_pivot[[
-                            'fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_modifier', 
-                            'portion_gram_weight', 'energy_kcal', 'energy_kj', 'protein', 'total_lipid_fat', 'carbohydrate_by_difference', 
-                            'fiber_total_dietary', 'sugars_total', 'cholesterol', 'sodium_na', 'potassium_k', 'calcium_ca', 
-                            'iron_fe', 'magnesium_mg', 'phosphorus_p', 'copper_cu', 'manganese_mn', 'selenium_se', 'zinc_zn', 
-                            'fluoride_f', 'retinol',  'vitamin_a_rae', 'vitamin_b12', 'vitamin_b12_added', 'vitamin_b6', 
-                            'vitamin_c_total_ascorbic_acid', 'vitamin_d2_ergocalciferol', 'vitamin_d3_cholecalciferol', 
-                            'vitamin_e_alphatocopherol', 'vitamin_e_added', 'vitamin_k_dihydrophylloquinone', 'vitamin_k_menaquinone4', 
-                            'vitamin_k_phylloquinone', 'thiamin', 'riboflavin', 'niacin', 'pantothenic_acid', 'vitamin_b12_added', 
-                            'folate_dfe', 'folate_food', 'folate_total', 'folic_acid', 'alanine', 'alcohol_ethyl', 'arginine', 
-                            'aspartic_acid', 'betaine', 'caffeine', 'carotene_beta', 'choline_total', 'cystine', 'fatty_acids_total_monounsaturated', 
-                            'fatty_acids_total_polyunsaturated', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fructose', 
-                            'galactose', 'glucose', 'glutamic_acid', 'glycine', 'histidine',  'isoleucine', 'lactose', 'leucine', 
-                            'lysine', 'maltose', 'methionine', 'phenylalanine', 'proline', 'serine', 'starch', 'sucrose', 'theobromine', 
-                            'threonine', 'tryptophan', 'tyrosine', 'valine'
-                        ]]
-
-    return lf_merged_pivot
+    return full_foods_pivot
