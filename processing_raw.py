@@ -1,13 +1,11 @@
 from config import Config
 import os
-from preprocessing.foundation_food import process_foundation_food
-from preprocessing.sr_legacy_food import process_legacy_food
-# from preprocessing.branded_food import process_branded_food
+from preprocessing.process_usda_data import process_usda_data
 
-processed_foundation_food = process_foundation_food(Config.FOUNDATION_FOOD_PATHS)
+processed_foundation_food = process_usda_data(Config.FF_FOOD_NUTRIENT, Config.FF_FOOD, Config.FF_NUTRIENT, Config.FF_CATEGORY, Config.FF_PORTION, Config.FF_MEASURE_UNIT)
 processed_foundation_food.to_csv(os.path.join(Config.OUTPUT_DIR, 'processed_foundation_food.csv'))
 
-processed_legacy_food = process_legacy_food(Config.SR_LEGACY_FOOD_PATHS)
+processed_legacy_food = process_usda_data(Config.LF_FOOD_NUTRIENT, Config.LF_FOOD, Config.LF_NUTRIENT, Config.LF_CATEGORY, Config.LF_PORTION, Config.LF_MEASURE_UNIT)
 processed_legacy_food.to_csv(os.path.join(Config.OUTPUT_DIR, 'processed_legacy_food.csv'))
 
 # processed_branded_food = process_branded_food(Config.BRANDED_FOOD_PATHS)

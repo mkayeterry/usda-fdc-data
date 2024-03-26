@@ -33,24 +33,21 @@ class Config:
             FDC_ALL_DIR = os.path.join(BASE_DIR, path)
 
 
-    FOUNDATION_FOOD_PATHS = {
-                "ff_food_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv'), 
-                "ff_food": os.path.join(FOUNDATION_FOOD_DIR, 'food.csv'), 
-                "ff_nutrient": os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv'), 
-                "ff_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
-                "ff_portion": os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv'), 
-                "ff_measure_unit": os.path.join(FOUNDATION_FOOD_DIR, 'measure_unit.csv')
-                }
+ 
+    FF_FOOD_NUTRIENT = os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv')
+    FF_FOOD = os.path.join(FOUNDATION_FOOD_DIR, 'food.csv')
+    FF_NUTRIENT = os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv')
+    FF_CATEGORY = os.path.join(FDC_ALL_DIR, 'food_category.csv')
+    FF_PORTION = os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
+    FF_MEASURE_UNIT = os.path.join(FOUNDATION_FOOD_DIR, 'measure_unit.csv')
 
 
-    SR_LEGACY_FOOD_PATHS = {
-                "lf_food_nutrient": os.path.join(SR_LEGACY_FOOD_DIR, 'food_nutrient.csv'), 
-                "lf_food": os.path.join(SR_LEGACY_FOOD_DIR, 'food.csv'), 
-                "lf_nutrient": os.path.join(SR_LEGACY_FOOD_DIR, 'nutrient.csv'), 
-                "lf_category": os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv'), 
-                "lf_portion": os.path.join(SR_LEGACY_FOOD_DIR, 'food_portion.csv'), 
-                "lf_measure_unit": os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv')
-                }
+    LF_FOOD_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'food_nutrient.csv')
+    LF_FOOD = os.path.join(SR_LEGACY_FOOD_DIR, 'food.csv')
+    LF_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'nutrient.csv')
+    LF_CATEGORY = os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv')
+    LF_PORTION = os.path.join(SR_LEGACY_FOOD_DIR, 'food_portion.csv')
+    LF_MEASURE_UNIT = os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv')
 
 
     # BRANDED_FOOD_PATHS = {

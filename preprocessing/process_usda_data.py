@@ -1,12 +1,23 @@
 import pandas as pd
 from preprocessing._utils import *
 
-# def process_foundation_food(data_paths):
 def process_usda_data(
-    food_path = None,
-    food_nutrient_path = None,
+        food_nutrient_path = None,
+        food_path = None,
+        nutrient_path = None, 
+        category_path = None, 
+        portion_path = None, 
+        measure_unit_path = None
+    ):
 
-)
+    # Load datasets
+    food_nutrient = pd.read_csv(food_nutrient_path, low_memory=False)
+    food = pd.read_csv(food_path, low_memory=False)
+    nutrient = pd.read_csv(nutrient_path, low_memory=False)
+    category = pd.read_csv(category_path, low_memory=False)
+    portion = pd.read_csv(portion_path, low_memory=False)
+    measure_unit = pd.read_csv(measure_unit_path, low_memory=False)
+
     # Specify columns to keep for each dataframe
     food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
     food_cols = ['fdc_id', 'description', 'food_category_id']
