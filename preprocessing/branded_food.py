@@ -3,6 +3,14 @@ from preprocessing._utils import *
 
 def process_branded_food(data_paths):
 
+        # # TESTING
+    # food_nutrients = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/food_nutrient.csv', low_memory=False)
+    # foods = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/food.csv', low_memory=False)
+    # nutrients = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/nutrient.csv', low_memory=False)
+    # categories = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/food_category.csv', low_memory=False)
+    # portions = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/food_portion.csv', low_memory=False)
+    # measure_units = pd.read_csv('fdc_data/FoodData_Central_sr_legacy_food_csv_2018-04/measure_unit.csv', low_memory=False)
+
     # Load datasets
     bf_food_nutrient = pd.read_csv(data_paths['bf_food_nutrient'], low_memory=False)
     bf_food = pd.read_csv(data_paths['bf_food'], low_memory=False)

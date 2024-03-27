@@ -14,7 +14,7 @@ class Config:
     if not os.path.exists(BASE_DIR):
         os.makedirs(BASE_DIR)
 
-    OUTPUT_DIR = os.path.join(BASE_DIR, 'fdc_output')
+    OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_output')
     if not os.path.exists(OUTPUT_DIR):
          os.makedirs(OUTPUT_DIR)
 
@@ -50,12 +50,10 @@ class Config:
     LF_MEASURE_UNIT = os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv')
 
 
-    # BRANDED_FOOD_PATHS = {
-    #             "bf_food_nutrient": os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv'), 
-    #             "bf_food": os.path.join(BRANDED_FOOD_DIR, 'food.csv'), 
-    #             "bf_nutrient": os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv'), 
-    #             "bf_category": os.path.join(FDC_ALL_DIR, 'food_category.csv'), 
-    #             "bf_portion": os.path.join(FDC_ALL_DIR, 'food_portion.csv')
-    #             }
+    BF_FOOD_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv')
+    BF_FOOD = os.path.join(BRANDED_FOOD_DIR, 'food.csv')
+    BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
+    BF_CATEGORY = os.path.join(FDC_ALL_DIR, 'food_category.csv')
+    BF_PORTION = os.path.join(FDC_ALL_DIR, 'food_portion.csv')
 
 
