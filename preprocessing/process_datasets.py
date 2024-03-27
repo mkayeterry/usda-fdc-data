@@ -133,7 +133,8 @@ def process_datasets(
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
 
-    full_foods_pivot['cal_per_serv'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
+    # Add calorie estimate
+    full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
 
     # Add source columns
     full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
@@ -144,4 +145,24 @@ def process_datasets(
     lst_col_names = format_names(lst_col_names)
     full_foods_pivot.columns = lst_col_names
 
+    full_foods_pivot['ext_portion_amount'] = 'NA'
+
+    if (full_foods_pivot['portion_unit'] == 'NA').all():
+        # Apply the ingredient_slicer function to the portion_modifier column
+        slicer_result = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
+
+        # Filter rows where 'portion_unit' is 'NA'
+        na_rows = full_foods_pivot['portion_unit'] == 'NA'
+
+        # Update 'ext_portion_amount' and 'portion_unit' columns for the filtered rows
+        full_foods_pivot.loc[na_rows, ['ext_portion_amount', 'portion_unit']] = slicer_result.tolist()
+
+    full_foods_pivot = full_foods_pivot[[
+                            'fdc_id', 'usda_data_source', 'data_type', 'food_description', 'category_description', 'portion_amount', 'ext_portion_amount', 
+                            'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 'energy', 
+                            'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
+                        ]]
+
     return full_foods_pivot
+
+

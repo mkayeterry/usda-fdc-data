@@ -1,4 +1,5 @@
 import re
+import ingredient_slicer
 
 def format_names(col_names):
     """
@@ -55,3 +56,27 @@ def define_source(path):
     usda_data_source = split_path[-2] if len(split_path) > 2 else 'FoodData_Central_csv'
 
     return (usda_data_source, data_type)
+
+
+
+def apply_ingredient_slicer(portion_modifier):
+    """
+    Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
+
+    Parameters:
+        portion_modifier (str): The portion modifier to be processed.
+
+    Returns:
+        tuple: A tuple containing the quantity and standardized unit extracted from the portion modifier.
+    """
+    try:
+        res = ingredient_slicer.IngredientSlicer(portion_modifier).to_json()
+        quantity, unit = res['quantity'], res['standardized_unit']
+
+        quantity = quantity if quantity else 'NA'
+        unit = unit if unit else 'NA'
+
+    except Exception as e:   
+        quantity, unit = 'NA', 'NA'
+
+    return quantity, unit
