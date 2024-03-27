@@ -165,3 +165,5 @@ fdc_data/
 fdc_data/*
 .DS_Store
 preprocessing/.DS_Store/*
+
+preprocessing/process_graveyard.py
