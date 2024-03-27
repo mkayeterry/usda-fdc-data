@@ -135,6 +135,10 @@ def process_datasets(
 
     full_foods_pivot['cal_per_serv'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
 
+    # Add source columns
+    full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
+    full_foods_pivot['data_type'] = define_source(food_path)[1]
+
     # Format the column names using the format_names function
     lst_col_names = full_foods_pivot.columns.to_list()
     lst_col_names = format_names(lst_col_names)

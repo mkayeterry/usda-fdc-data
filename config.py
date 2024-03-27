@@ -21,39 +21,35 @@ class Config:
     for path in os.listdir(BASE_DIR):
 
         if 'foundation' in path:
-            print(path)
             FOUNDATION_FOOD_DIR = os.path.join(BASE_DIR, path)
+
         if 'sr_legacy' in path:
-            print(path)
             SR_LEGACY_FOOD_DIR = os.path.join(BASE_DIR, path)
+
         if 'branded' in path:
-            print(path)
             BRANDED_FOOD_DIR = os.path.join(BASE_DIR, path)
-        else:
+
+        if 'FoodData_Central_csv' in path:
             FDC_ALL_DIR = os.path.join(BASE_DIR, path)
 
 
- 
     FF_FOOD_NUTRIENT = os.path.join(FOUNDATION_FOOD_DIR, 'food_nutrient.csv')
     FF_FOOD = os.path.join(FOUNDATION_FOOD_DIR, 'food.csv')
-    FF_NUTRIENT = os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv')
+    FF_NUTRIENT = os.path.join(FOUNDATION_FOOD_DIR, 'nutrient.csv') 
     FF_CATEGORY = os.path.join(FDC_ALL_DIR, 'food_category.csv')
     FF_PORTION = os.path.join(FOUNDATION_FOOD_DIR, 'food_portion.csv')
     FF_MEASURE_UNIT = os.path.join(FOUNDATION_FOOD_DIR, 'measure_unit.csv')
 
-
-    LF_FOOD_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'food_nutrient.csv')
-    LF_FOOD = os.path.join(SR_LEGACY_FOOD_DIR, 'food.csv')
-    LF_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'nutrient.csv')
-    LF_CATEGORY = os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv')
-    LF_PORTION = os.path.join(SR_LEGACY_FOOD_DIR, 'food_portion.csv')
-    LF_MEASURE_UNIT = os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv')
-
+    SR_FOOD_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'food_nutrient.csv')
+    SR_FOOD = os.path.join(SR_LEGACY_FOOD_DIR, 'food.csv')
+    SR_NUTRIENT = os.path.join(SR_LEGACY_FOOD_DIR, 'nutrient.csv')
+    SR_CATEGORY = os.path.join(SR_LEGACY_FOOD_DIR, 'food_category.csv')
+    SR_PORTION = os.path.join(SR_LEGACY_FOOD_DIR, 'food_portion.csv')
+    SR_MEASURE_UNIT = os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv') 
 
     BF_FOOD_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv')
     BF_FOOD = os.path.join(BRANDED_FOOD_DIR, 'food.csv')
     BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
     BF_CATEGORY = os.path.join(FDC_ALL_DIR, 'food_category.csv')
     BF_PORTION = os.path.join(FDC_ALL_DIR, 'food_portion.csv')
-
-
+    BF_MEASURE_UNIT = os.path.join(BRANDED_FOOD_DIR, 'measure_unit.csv')

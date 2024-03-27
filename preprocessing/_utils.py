@@ -1,4 +1,3 @@
-
 import re
 
 def format_names(col_names):
@@ -29,3 +28,30 @@ def format_names(col_names):
     
     return formatted_names
     
+
+
+def define_source(path):
+    """
+    Determines the data source type based on the given path.
+
+    Args:
+        path (str): The file path from which to extract the data source type.
+
+    Returns:
+        tuple: A tuple containing the USDA data source and the corresponding data type.
+    """
+    data_type = 'unspecified'
+
+    if 'foundation' in path:
+        data_type = 'foundation'
+
+    if 'sr_legacy' in path:
+        data_type = 'sr_legacy'
+
+    if 'branded' in path:
+        data_type = 'branded'
+
+    split_path = path.split('/')
+    usda_data_source = split_path[-2] if len(split_path) > 2 else 'FoodData_Central_csv'
+
+    return (usda_data_source, data_type)
