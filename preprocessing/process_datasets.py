@@ -38,7 +38,7 @@ def process_datasets(
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
     foods.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
-    categories.rename(columns={'id': 'category_id', 'description': 'category_description'}, inplace=True)
+    categories.rename(columns={'id': 'category_id', 'description': 'category'}, inplace=True)
     portions.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
     measure_units.rename(columns={'id': 'measure_unit_id', 'name': 'portion_unit'}, inplace=True)
 
@@ -56,7 +56,7 @@ def process_datasets(
     nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('NA').astype(str)
 
     categories['category_id'] = categories['category_id'].fillna(0).astype(int)
-    categories['category_description'] = categories['category_description'].fillna('NA').astype(str)
+    categories['category'] = categories['category'].fillna('NA').astype(str)
 
     portions['portion_id'] = portions['portion_id'].fillna(0).astype(int)
     portions['fdc_id'] = portions['fdc_id'].fillna(0).astype(int)
@@ -69,7 +69,7 @@ def process_datasets(
     measure_units['portion_unit'] = measure_units['portion_unit'].fillna('NA').astype(str)
 
     # foods Columns:           ['fdc_id', 'category_id', 'food_description']
-    # categories Columns:       ['category_id', 'category_description']
+    # categories Columns:       ['category_id', 'category']
 
     # food_nutrients Columns:  ['fdc_id', 'nutrient_id', 'nutrient_amount']
     # nutrients Columns:       ['nutrient_id', 'nutrient_name', 'nutrient_unit']
@@ -126,10 +126,10 @@ def process_datasets(
     full_foods_filtered.drop(['multiplier'], axis=1, inplace=True)
 
     # Aggregate rows with equal values
-    full_foods_agg = full_foods_filtered.groupby(['food_description', 'category_description', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
+    full_foods_agg = full_foods_filtered.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
     full_foods_pivot = pd.pivot_table(full_foods_agg,
-                                    index=['fdc_id', 'food_description', 'category_description', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
+                                    index=['fdc_id', 'food_description', 'category', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
 
@@ -158,7 +158,7 @@ def process_datasets(
         full_foods_pivot.loc[na_rows, ['ext_portion_amount', 'portion_unit']] = slicer_result.tolist()
 
     full_foods_pivot = full_foods_pivot[[
-                            'fdc_id', 'usda_data_source', 'data_type', 'food_description', 'category_description', 'portion_amount', 'ext_portion_amount', 
+                            'fdc_id', 'usda_data_source', 'data_type', 'food_description', 'category', 'portion_amount', 'ext_portion_amount', 
                             'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 'energy', 
                             'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
                         ]]

@@ -47,6 +47,7 @@ class Config:
     SR_PORTION = os.path.join(SR_LEGACY_FOOD_DIR, 'food_portion.csv')
     SR_MEASURE_UNIT = os.path.join(SR_LEGACY_FOOD_DIR, 'measure_unit.csv') 
 
+    BF_BRANDED_FOOD = os.path.join(BRANDED_FOOD_DIR, 'branded_food.csv')
     BF_FOOD_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv')
     BF_FOOD = os.path.join(BRANDED_FOOD_DIR, 'food.csv')
     BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
