@@ -75,7 +75,7 @@ def apply_ingredient_slicer(portion_modifier):
         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
         if selected_data['quantity'] is None and selected_data['standardized_unit'] is None:
-            selected_result = 'NA'
+            selected_data = 'NA'
 
         # quantity, unit = res['quantity'], res['standardized_unit']
 
