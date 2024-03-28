@@ -71,13 +71,19 @@ def apply_ingredient_slicer(portion_modifier):
     """
     try:
         res = ingredient_slicer.IngredientSlicer(portion_modifier).to_json()
-        quantity, unit = res['quantity'], res['standardized_unit']
 
-        quantity = quantity if quantity else 'NA'
-        unit = unit if unit else 'NA'
+        selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
+
+        if selected_data['quantity'] is None and selected_data['standardized_unit'] is None:
+            selected_result = 'NA'
+
+        # quantity, unit = res['quantity'], res['standardized_unit']
+
+        # quantity = quantity if quantity else 'NA'
+        # unit = unit if unit else 'NA'
 
     except Exception as e:  
         print(f'There was an error processing {portion_modifier}. {e}') 
-        quantity, unit = 'NA', 'NA'
+        selected_data = 'NA'
 
-    return quantity, unit
+    return selected_data
