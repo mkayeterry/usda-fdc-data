@@ -76,7 +76,8 @@ def apply_ingredient_slicer(portion_modifier):
         quantity = quantity if quantity else 'NA'
         unit = unit if unit else 'NA'
 
-    except Exception as e:   
+    except Exception as e:  
+        print(f'There was an error processing {portion_modifier}. {e}') 
         quantity, unit = 'NA', 'NA'
 
     return quantity, unit

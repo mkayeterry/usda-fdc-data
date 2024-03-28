@@ -51,6 +51,3 @@ class Config:
     BF_FOOD_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'food_nutrient.csv')
     BF_FOOD = os.path.join(BRANDED_FOOD_DIR, 'food.csv')
     BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
-    BF_CATEGORY = os.path.join(FDC_ALL_DIR, 'food_category.csv')
-    BF_PORTION = os.path.join(FDC_ALL_DIR, 'food_portion.csv')
-    BF_MEASURE_UNIT = os.path.join(BRANDED_FOOD_DIR, 'measure_unit.csv')

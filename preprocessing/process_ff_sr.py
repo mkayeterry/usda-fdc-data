@@ -1,66 +1,101 @@
 import pandas as pd
 from preprocessing._utils import *
 
-def process_branded_food(data_paths):
+def process_ff_sr(
+        food_nutrient_path = None,
+        food_path = None,
+        nutrient_path = None, 
+        category_path = None, 
+        portion_path = None, 
+        measure_unit_path = None
+    ):
 
-    # TESTING
-    branded_foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/branded_food.csv', low_memory=False)
-    food_nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food_nutrient.csv', low_memory=False)
-    foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food.csv', low_memory=False)
-    nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/nutrient.csv', low_memory=False)
+    # Load datasets
+    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
+    foods = pd.read_csv(food_path, low_memory=False)
+    nutrients = pd.read_csv(nutrient_path, low_memory=False)
+    categories = pd.read_csv(category_path, low_memory=False)
+    portions = pd.read_csv(portion_path, low_memory=False)
+    measure_units = pd.read_csv(measure_unit_path, low_memory=False)
 
     # Specify columns to keep for each dataframe
-    branded_food_cols = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']
     food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
-    food_cols = ['fdc_id', 'description']
+    food_cols = ['fdc_id', 'description', 'food_category_id']
     nutrient_cols = ['id', 'name', 'unit_name']
+    category_cols = ['id', 'description']
+    portion_cols = ['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']
+    measure_unit_cols = ['id', 'name']
 
     # Execute column selection
-    branded_foods = branded_foods[branded_food_cols]
     food_nutrients = food_nutrients[food_nutrient_cols]
     foods = foods[food_cols]
     nutrients = nutrients[nutrient_cols]
+    categories = categories[category_cols]
+    portions = portions[portion_cols]
+    measure_units = measure_units[measure_unit_cols]
 
     # Rename columns
-    branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
-    foods.rename(columns={'description': 'food_description'}, inplace=True)
+    foods.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
+    categories.rename(columns={'id': 'category_id', 'description': 'category'}, inplace=True)
+    portions.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
+    measure_units.rename(columns={'id': 'measure_unit_id', 'name': 'portion_unit'}, inplace=True)
 
     # Set data types for all columns, and fill NA values
-    branded_foods['fdc_id'] = branded_foods['fdc_id'].fillna(0).astype(int)
-    branded_foods['brand_owner'] = branded_foods['brand_owner'].fillna('NA').astype(str)
-    branded_foods['brand_name'] = branded_foods['brand_name'].fillna('NA').astype(str)
-    branded_foods['ingredients'] = branded_foods['ingredients'].fillna('NA').astype(str)
-    branded_foods['portion_amount'] = branded_foods['portion_amount'].fillna(0).astype(float)
-    branded_foods['portion_unit'] = branded_foods['portion_unit'].fillna('NA').astype(str)
-    branded_foods['portion_modifier'] = branded_foods['portion_modifier'].fillna('NA').astype(str)
-    branded_foods['category'] = branded_foods['category'].fillna('NA').astype(str)
-
     food_nutrients['fdc_id'] = food_nutrients['fdc_id'].fillna(0).astype(int)
     food_nutrients['nutrient_id'] = food_nutrients['nutrient_id'].fillna(0).astype(int)
     food_nutrients['nutrient_amount'] = food_nutrients['nutrient_amount'].fillna(0).astype(float)
 
     foods['fdc_id'] = foods['fdc_id'].fillna(0).astype(int)
     foods['food_description'] = foods['food_description'].fillna('NA').astype(str)
+    foods['category_id'] = foods['category_id'].fillna(0).astype(int)
 
     nutrients['nutrient_id'] = nutrients['nutrient_id'].fillna(0).astype(int)
     nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('NA').astype(str)
     nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('NA').astype(str)
 
-    # branded_foods Columns:   ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier', 'category']
-    
-    # foods Columns:           ['fdc_id', 'food_description']
-    
+    categories['category_id'] = categories['category_id'].fillna(0).astype(int)
+    categories['category'] = categories['category'].fillna('NA').astype(str)
+
+    portions['portion_id'] = portions['portion_id'].fillna(0).astype(int)
+    portions['fdc_id'] = portions['fdc_id'].fillna(0).astype(int)
+    portions['portion_amount'] = portions['portion_amount'].fillna(0).astype(float)
+    portions['measure_unit_id'] = portions['measure_unit_id'].fillna(0).astype(int)
+    portions['portion_modifier'] = portions['portion_modifier'].fillna('NA').astype(str)
+    portions['portion_gram_weight'] = portions['portion_gram_weight'].fillna(0).astype(float)
+
+    measure_units['measure_unit_id'] = measure_units['measure_unit_id'].fillna(0).astype(int)
+    measure_units['portion_unit'] = measure_units['portion_unit'].fillna('NA').astype(str)
+
+    # foods Columns:           ['fdc_id', 'category_id', 'food_description']
+    # categories Columns:       ['category_id', 'category']
+
     # food_nutrients Columns:  ['fdc_id', 'nutrient_id', 'nutrient_amount']
     # nutrients Columns:       ['nutrient_id', 'nutrient_name', 'nutrient_unit']
-    
+
+    # portions Columns:        ['fdc_id', 'measure_unit_id', 'portion_id', 'portion_amount', 'portion_modifier', 'portion_gram_weight']
+    # measure_units Columns:   ['measure_unit_id', 'portion_unit']
+
+    foods_merged = pd.merge(foods, categories, on='category_id', how='left')
+    foods_merged = foods_merged.drop(['category_id'], axis=1)
+
     nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
     nutrients_merged = nutrients_merged.drop(['nutrient_id'], axis=1)
 
-    foods_and_nutrients_merged = pd.merge(foods, nutrients_merged, on='fdc_id', how='left')
+    # If True, portion_units are non-applicable
+    if (portions['measure_unit_id'] == 9999).all():
+        portions['portion_unit'] = 'NA'
+        portions_merged = portions
+    else:
+        portions_merged = pd.merge(portions, measure_units, on='measure_unit_id', how='left')
 
-    full_foods_merged = pd.merge(foods_and_nutrients_merged, branded_foods, on='fdc_id', how='left')
+    portions_merged = portions_merged.drop(['measure_unit_id'], axis=1)
+    portions_merged = portions_merged.drop(['portion_id'], axis=1)
+
+    foods_and_nutrients_merged = pd.merge(foods_merged, nutrients_merged, on='fdc_id', how='left')
+
+    full_foods_merged = pd.merge(foods_and_nutrients_merged, portions_merged, on='fdc_id', how='inner')
 
     # List of nutrients consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
@@ -90,15 +125,11 @@ def process_branded_food(data_paths):
     full_foods_filtered['per_gram_amt'] = round(full_foods_filtered.nutrient_amount * full_foods_filtered.multiplier, 10)
     full_foods_filtered.drop(['multiplier'], axis=1, inplace=True)
 
-# full_foods_filtered.head(10000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_filtered.csv'))
-
     # Aggregate rows with equal values
-    full_foods_agg = full_foods_filtered.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 
-                 'portion_unit', 'brand_owner', 'brand_name', 'ingredients', 'category']).mean(numeric_only=True).reset_index()
+    full_foods_agg = full_foods_filtered.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
     full_foods_pivot = pd.pivot_table(full_foods_agg,
-                                    index=['fdc_id', 'food_description', 'category', 'nutrient_amount', 'nutrient_unit', 'brand_owner', 
-                                        'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier', 'category'],
+                                    index=['fdc_id', 'food_description', 'category', 'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight'],
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
 
@@ -126,10 +157,17 @@ def process_branded_food(data_paths):
         # Update 'ext_portion_amount' and 'portion_unit' columns for the filtered rows
         full_foods_pivot.loc[na_rows, ['ext_portion_amount', 'portion_unit']] = slicer_result.tolist()
 
+    # Add missing columns to stack on other data type dfs
+    full_foods_pivot['brand_owner'] = 'NA'
+    full_foods_pivot['brand_name'] = 'NA'
+    full_foods_pivot['ingredients'] = 'NA'
+
     full_foods_pivot = full_foods_pivot[[
-                            'fdc_id', 'usda_data_source', 'data_type', 'food_description', 'category', 'portion_amount', 'ext_portion_amount', 
-                            'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 'energy', 
-                            'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
+                            'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
+                            'portion_amount', 'ext_portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 
+                            'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
                         ]]
 
     return full_foods_pivot
+
+
