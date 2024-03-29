@@ -102,7 +102,7 @@ def process_bf(
                                         columns='nutrient_name',
                                         values='per_gram_amt').reset_index()
 
-    # Add calorie estimate, where possible
+    # # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_unit'] = full_foods_pivot['portion_unit'].str.lower()
     full_foods_pivot.loc[full_foods_pivot['portion_unit'] == 'g', 'portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_amount']
     full_foods_pivot['portion_energy'].fillna('NA', inplace=True)
@@ -111,22 +111,20 @@ def process_bf(
     full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
+    # Add ext_portion columns, applying ingredient_slicer function to portion_modifier column
+    full_foods_pivot['ext_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
+
+    # Add missing columns to stack on other data type dfs
+    full_foods_pivot['portion_gram_weight'] = 'NA'
+
     # Format the column names using the format_names function
     lst_col_names = full_foods_pivot.columns.to_list()
     lst_col_names = format_names(lst_col_names)
     full_foods_pivot.columns = lst_col_names
 
-    # Apply the ingredient_slicer function to the portion_modifier column
-    slicer_result = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
-
-    full_foods_pivot['ext_portion'] = slicer_result
-
-    # Add missing columns to stack on other data type dfs
-    full_foods_pivot['portion_gram_weight'] = 'NA'
-
     full_foods_pivot = full_foods_pivot[[
                             'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-                            'portion_amount', 'ext_portion', 'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 
+                            'portion_amount', 'portion_unit', 'portion_modifier', 'ext_portion', 'portion_gram_weight', 'portion_energy', 
                             'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
                         ]]
 

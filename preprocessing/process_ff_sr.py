@@ -133,43 +133,29 @@ def process_ff_sr(
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
 
-    # Add calorie estimate
+    # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
 
     # Add source columns
     full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
-    # Format the column names using the format_names function
-    lst_col_names = full_foods_pivot.columns.to_list()
-    lst_col_names = format_names(lst_col_names)
-    full_foods_pivot.columns = lst_col_names
-
-    # full_foods_pivot['ext_portion_amount'] = 'NA'
-
-    # if (full_foods_pivot['portion_unit'] == 'NA').all():
-    #     # Apply the ingredient_slicer function to the portion_modifier column
-    #     slicer_result = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
-
-    #     # Filter rows where 'portion_unit' is 'NA'
-    #     na_rows = full_foods_pivot['portion_unit'] == 'NA'
-
-    #     # Update 'ext_portion_amount' and 'portion_unit' columns for the filtered rows
-    #     full_foods_pivot.loc[na_rows, ['ext_portion_amount', 'portion_unit']] = slicer_result.tolist()
-
-    # Apply the ingredient_slicer function to the portion_modifier column
-    slicer_result = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
-
-    full_foods_pivot['ext_portion'] = slicer_result
+    # Add ext_portion columns, applying ingredient_slicer function to portion_modifier column
+    full_foods_pivot['ext_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
 
     # Add missing columns to stack on other data type dfs
     full_foods_pivot['brand_owner'] = 'NA'
     full_foods_pivot['brand_name'] = 'NA'
     full_foods_pivot['ingredients'] = 'NA'
 
+    # Format the column names using the format_names function
+    lst_col_names = full_foods_pivot.columns.to_list()
+    lst_col_names = format_names(lst_col_names)
+    full_foods_pivot.columns = lst_col_names
+
     full_foods_pivot = full_foods_pivot[[
                             'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-                            'portion_amount', 'ext_portion', 'portion_unit', 'portion_modifier', 'portion_gram_weight', 'portion_energy', 
+                            'portion_amount', 'portion_unit', 'portion_modifier', 'ext_portion', 'portion_gram_weight', 'portion_energy', 
                             'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
                         ]]
 

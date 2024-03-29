@@ -83,7 +83,7 @@ def apply_ingredient_slicer(portion_modifier):
         # unit = unit if unit else 'NA'
 
     except Exception as e:  
-        print(f'There was an error processing {portion_modifier}. {e}') 
+        print(f'There was an error processing "{portion_modifier}". {e}') 
         selected_data = 'NA'
 
     return selected_data
