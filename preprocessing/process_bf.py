@@ -102,7 +102,7 @@ def process_bf(
                                         columns='nutrient_name',
                                         values='per_gram_amt').reset_index()
 
-    # full_foods_pivot.head(1000).to_csv('fdc_data/FoodData_Central_output/bf_post_pivot.csv')
+    # full_foods_pivot.head(1^000).to_csv('fdc_data/FoodData_Central_output/bf_post_pivot.csv')
 
     # # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_unit'] = full_foods_pivot['portion_unit'].str.lower()

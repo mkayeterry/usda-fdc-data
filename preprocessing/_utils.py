@@ -82,3 +82,5 @@ def apply_ingredient_slicer(portion_modifier):
         selected_data = 'NA'
 
     return selected_data
+
+# portion_modifier =   "4/0.48 Bites"
