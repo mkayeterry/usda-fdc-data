@@ -140,9 +140,10 @@ def process_ff_sr(
     full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
-    # Add ext_portion columns, applying ingredient_slicer function to portion_modifier column
-    full_foods_pivot['ext_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: apply_ingredient_slicer(x))
-
+    # Add columns applying ingredient_slicer function
+    full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    
     # Add missing columns to stack on other data type dfs
     full_foods_pivot['brand_owner'] = 'NA'
     full_foods_pivot['brand_name'] = 'NA'
@@ -155,7 +156,7 @@ def process_ff_sr(
 
     full_foods_pivot = full_foods_pivot[[
                             'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-                            'portion_amount', 'portion_unit', 'portion_modifier', 'ext_portion', 'portion_gram_weight', 'portion_energy', 
+                            'portion_amount', 'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 'portion_gram_weight', 'portion_energy', 
                             'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat'
                         ]]
 

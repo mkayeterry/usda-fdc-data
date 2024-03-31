@@ -59,28 +59,26 @@ def define_source(path):
 
 
 
-def apply_ingredient_slicer(portion_modifier):
+def apply_ingredient_slicer(entry):
     """
     Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
 
     Parameters:
-        portion_modifier (str): The portion modifier to be processed.
+        entry (str): The row entry to be processed.
 
     Returns:
         tuple: A tuple containing the quantity and standardized unit extracted from the portion modifier.
     """
     try:
-        res = ingredient_slicer.IngredientSlicer(portion_modifier).to_json()
+        res = ingredient_slicer.IngredientSlicer(entry).to_json()
 
         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
         if selected_data['quantity'] is None and selected_data['standardized_unit'] is None:
-            selected_data = 'NA'
+            selected_data = {'quantity': 'NA', 'standardized_unit': 'NA'}
 
     except Exception as e:  
-        print(f'There was an error processing portion_modifier :"{portion_modifier}". {e}') 
-        selected_data = 'NA'
+        print(f'There was an error processing entry :"{entry}". {e}') 
+        selected_data = {'quantity': 'NA', 'standardized_unit': 'NA'}
 
     return selected_data
-
-# portion_modifier =   "4/0.48 Bites"
