@@ -109,6 +109,8 @@ def process_bf(
     full_foods_filtered.drop(['nutrient_amount'], axis=1, inplace=True)
 
 # full_foods_filtered.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_filtered2.csv'))
+# count_energy_rows = full_foods_filtered[(full_foods_filtered['nutrient_name'] == 'Energy') & (full_foods_filtered['per_gram_amt'].notna() | (full_foods_filtered['per_gram_amt'] != 'NA'))].shape[0]
+
 
     # index: the column to use as row labels
     # columns: the column that will be reshaped as columns
@@ -117,36 +119,25 @@ def process_bf(
     # fill_value: value to replace missing values with
     # dropna: whether to exclude the columns whose entries are all NaN
 
-    # full_foods_pivot = full_foods_filtered.pivot_table(index=['fdc_id', 'food_description', 'category', 'brand_owner', 'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier'],
-    #                                     columns='nutrient_name',
-    #                                     values='per_gram_amt', 
-    #                                     fill_value='NA').reset_index()
+    full_foods_pivot = full_foods_filtered.pivot_table(index=['fdc_id', 'food_description', 'category', 'brand_owner', 'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier'],
+                                        columns='nutrient_name',
+                                        values='per_gram_amt', 
+                                        dropna=True).reset_index()
 
-    full_foods_pivot = full_foods_filtered.pivot_table(index=['fdc_id', 'food_description'],
-                                    columns='nutrient_name',
-                                    values='per_gram_amt', 
-                                    fill_value='NA').reset_index()
+# full_foods_pivot.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_pivot_mod.csv'))
+# count_energy_postpiv = full_foods_pivot[(full_foods_pivot['Energy'] != 'NA')].shape[0]
 
-    full_foods_filtered.drop(['nutrient_name'], axis=1, inplace=True)
-    full_foods_filtered.drop(['per_gram_amt'], axis=1, inplace=True)
+    # Add portion_energy column as calorie estimate
+    full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_amount']
 
-    full_foods_pivot_merged = pd.merge(full_foods_filtered, full_foods_pivot, on='food_description', how='left')
-
-# full_foods_pivot_merged.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_pivot_merged.csv'))
-
-    # # Add portion_energy column as calorie estimate
-    full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
-    full_foods_pivot['standardized_food'] = full_foods_pivot['food_description'].apply(lambda x: list(apply_ingredient_slicer(x).values())[2])
-    
     # Add source columns
     full_foods_pivot['usda_data_source'] = define_source(food_path)[0]
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
     # Add columns applying ingredient_slicer function
-    full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: dict(list(apply_ingredient_slicer(x).values())[0]))
-    full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: dict(list(apply_ingredient_slicer(x).values())[1]))
-
+    full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    
     # Add missing columns to stack on other data type dfs
     full_foods_pivot['portion_gram_weight'] = 'NA'
 

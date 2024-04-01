@@ -10,4 +10,4 @@ processed_legacy_food = process_ff_sr(Config.SR_FOOD_NUTRIENT, Config.SR_FOOD, C
 processed_legacy_food.to_csv(os.path.join(Config.OUTPUT_DIR, 'processed_legacy_food.csv'))
 
 processed_branded_food = process_bf(Config.BF_BRANDED_FOOD, Config.BF_FOOD_NUTRIENT, Config.BF_FOOD, Config.BF_NUTRIENT)
-processed_branded_food.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'processed_branded_food.csv'))
+processed_branded_food.head(5000).to_csv(os.path.join(Config.OUTPUT_DIR, 'processed_branded_food.csv'))

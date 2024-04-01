@@ -74,9 +74,12 @@ def apply_ingredient_slicer(entry):
 
         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
-        if selected_data['quantity'] is None and selected_data['standardized_unit'] is None:
-            selected_data = {'quantity': 'NA', 'standardized_unit': 'NA'}
+        if selected_data['quantity'] is None:
+            selected_data['quantity'] = 'NA'
 
+        if selected_data['standardized_unit'] is None:
+            selected_data['standardized_unit'] = 'NA'
+            
     except Exception as e:  
         print(f'There was an error processing entry :"{entry}". {e}') 
         selected_data = {'quantity': 'NA', 'standardized_unit': 'NA'}
