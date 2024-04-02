@@ -8,23 +8,23 @@ def process_bf(
         nutrient_path = None
     ):
 
-    # Testing
-    branded_foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/branded_food.csv', low_memory=False)
-    food_nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food_nutrient.csv', low_memory=False)
-    foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food.csv', low_memory=False)
-    nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/nutrient.csv', low_memory=False)
+    # # Testing
+    # branded_foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/branded_food.csv', low_memory=False).head(5000)
+    # food_nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food_nutrient.csv', low_memory=False).head(5000)
+    # foods = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/food.csv', low_memory=False).head(5000)
+    # nutrients = pd.read_csv('fdc_data/FoodData_Central_branded_food_csv_2023-10-26/nutrient.csv', low_memory=False).head(5000)
 
     # Load datasets
-    # branded_foods = pd.read_csv(branded_food_path, low_memory=False)
-    # food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
-    # foods = pd.read_csv(food_path, low_memory=False)
-    # nutrients = pd.read_csv(nutrient_path, low_memory=False)
+    branded_foods = pd.read_csv(branded_food_path, low_memory=False).head(5000)
+    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False).head(5000)
+    foods = pd.read_csv(food_path, low_memory=False).head(5000)
+    nutrients = pd.read_csv(nutrient_path, low_memory=False).head(5000)
 
     # Specify columns to keep for each dataframe
-    branded_food_cols = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']
+    branded_food_cols  = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']
     food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
-    food_cols = ['fdc_id', 'description']
-    nutrient_cols = ['id', 'name', 'unit_name']
+    food_cols          = ['fdc_id', 'description']
+    nutrient_cols      = ['id', 'name', 'unit_name']
 
     # Execute column selection
     branded_foods = branded_foods[branded_food_cols]
@@ -39,25 +39,25 @@ def process_bf(
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
 
     # Set data types for all columns, and fill NA values
-    branded_foods['fdc_id'] = branded_foods['fdc_id'].fillna(0).astype(int)
-    branded_foods['brand_owner'] = branded_foods['brand_owner'].fillna('NA').astype(str)
-    branded_foods['brand_name'] = branded_foods['brand_name'].fillna('NA').astype(str)
-    branded_foods['ingredients'] = branded_foods['ingredients'].fillna('NA').astype(str)
-    branded_foods['portion_amount'] = branded_foods['portion_amount'].fillna(0).astype(float)
-    branded_foods['portion_unit'] = branded_foods['portion_unit'].fillna('NA').astype(str)
-    branded_foods['portion_modifier'] = branded_foods['portion_modifier'].fillna('NA').astype(str)
-    branded_foods['category'] = branded_foods['category'].fillna('NA').astype(str)
+    branded_foods['fdc_id']           = branded_foods['fdc_id'].fillna(0).astype(int)
+    branded_foods['brand_owner']      = branded_foods['brand_owner'].fillna('no_brand_owner_given').astype(str)
+    branded_foods['brand_name']       = branded_foods['brand_name'].fillna('no_brand_name_given').astype(str)
+    branded_foods['ingredients']      = branded_foods['ingredients'].fillna('no_ingredients_given').astype(str)
+    branded_foods['portion_amount']   = branded_foods['portion_amount'].fillna(0).astype(float)
+    branded_foods['portion_unit']     = branded_foods['portion_unit'].fillna('no_portion_unit_given').astype(str)
+    branded_foods['portion_modifier'] = branded_foods['portion_modifier'].fillna('no_portion_modifier_given').astype(str)
+    branded_foods['category']         = branded_foods['category'].fillna('no_category_given').astype(str)
 
     food_nutrients['fdc_id'] = food_nutrients['fdc_id'].fillna(0).astype(int)
     food_nutrients['nutrient_id'] = food_nutrients['nutrient_id'].fillna(0).astype(int)
     food_nutrients['nutrient_amount'] = food_nutrients['nutrient_amount'].fillna(0).astype(float)
 
     foods['fdc_id'] = foods['fdc_id'].fillna(0).astype(int)
-    foods['food_description'] = foods['food_description'].fillna('NA').astype(str)
+    foods['food_description'] = foods['food_description'].fillna('no_food_description_given').astype(str)
 
-    nutrients['nutrient_id'] = nutrients['nutrient_id'].fillna(0).astype(int)
-    nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('NA').astype(str)
-    nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('NA').astype(str)
+    nutrients['nutrient_id']   = nutrients['nutrient_id'].fillna(0).astype(int)
+    nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('no_nutrient_name_given').astype(str)
+    nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('no_nutrient_unit_given').astype(str)
 
     # branded_foods Columns:   ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier', 'category']
     
@@ -73,7 +73,6 @@ def process_bf(
 
     full_foods_merged = pd.merge(foods_and_nutrients_merged, branded_foods, on='fdc_id', how='left')
 
-# full_foods_merged.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_merged.csv'))
 
     # List of nutrients consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
@@ -94,8 +93,6 @@ def process_bf(
     full_foods_filtered = full_foods_merged[full_foods_merged['nutrient_name'].isin(relevant_nutrients)]
     full_foods_filtered = full_foods_filtered[full_foods_filtered['nutrient_unit'] != 'kJ']
 
-# full_foods_filtered.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_filtered.csv'))
-
     # Add new column for per gram amount for various nutrients
     full_foods_filtered['multiplier'] = 0
     full_foods_filtered.loc[full_foods_filtered['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
@@ -108,24 +105,23 @@ def process_bf(
     full_foods_filtered.drop(['nutrient_unit'], axis=1, inplace=True)
     full_foods_filtered.drop(['nutrient_amount'], axis=1, inplace=True)
 
-# full_foods_filtered.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_filtered2.csv'))
-# count_energy_rows = full_foods_filtered[(full_foods_filtered['nutrient_name'] == 'Energy') & (full_foods_filtered['per_gram_amt'].notna() | (full_foods_filtered['per_gram_amt'] != 'NA'))].shape[0]
+    full_foods_grouped = full_foods_filtered.groupby(['food_description', 'nutrient_name', 'portion_amount', 'portion_unit']).first()
 
+    full_foods_grouped['brand_name']       = full_foods_grouped['brand_name'].fillna('no_brand_name_given')
+    full_foods_grouped['portion_modifier'] = full_foods_grouped['portion_modifier'].fillna('no_portion_modifier_given')
 
-    # index: the column to use as row labels
-    # columns: the column that will be reshaped as columns
-    # values: the column(s) to use for the new DataFrame's values
-    # aggfunc: the function to use for aggregation, defaulting to 'mean'
-    # fill_value: value to replace missing values with
-    # dropna: whether to exclude the columns whose entries are all NaN
-
-    full_foods_pivot = full_foods_filtered.pivot_table(index=['fdc_id', 'food_description', 'category', 'brand_owner', 'brand_name', 'ingredients', 'portion_amount', 'portion_unit', 'portion_modifier'],
-                                        columns='nutrient_name',
-                                        values='per_gram_amt', 
-                                        dropna=True).reset_index()
-
-# full_foods_pivot.head(1000).to_csv(os.path.join(Config.OUTPUT_DIR, 'full_foods_pivot_mod.csv'))
-# count_energy_postpiv = full_foods_pivot[(full_foods_pivot['Energy'] != 'NA')].shape[0]
+    full_foods_pivot = full_foods_grouped.pivot_table(
+                                            index=['fdc_id', 
+                                                'food_description', 
+                                                'category', 
+                                                'brand_owner', 
+                                                'brand_name', 
+                                                'ingredients', 
+                                                'portion_amount', 
+                                                'portion_unit',
+                                                'portion_modifier'],
+                                            columns='nutrient_name', 
+                                            values='per_gram_amt').reset_index()
 
     # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_amount']
