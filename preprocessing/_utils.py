@@ -1,7 +1,10 @@
 import re
+import ast
 import ingredient_slicer
 
-def format_names(col_names):
+
+
+def format_col_names(col_names):
     """
     Formats a list of column names:
     - Removes special characters,
@@ -28,7 +31,32 @@ def format_names(col_names):
         formatted_names.append(formatted_name)
     
     return formatted_names
+
+
+
+def format_col_values(col_value):
+    """
+    Format the given values by removing commas, parenthesis, and converting to lowercase.
+
+    Args:
+    - col_value (str): The column value to format.
+
+    Returns:
+    - formatted_value (str): The formatted column value.
+    """
+    formatted_value = col_value.replace(',', '').replace('(', '').replace(')', '').lower()
+
+    return formatted_value
     
+
+# ingredients = 'INGREDIENTS: BEEF STOCK, CONTAINS LESS THAN 2% OF: MIREPOIX (CARROTS, CELERY, ONIONS), SALT, NATURAL FLAVORING, YEAST EXTRACT, CANE SUGAR.'
+
+# def format_ingredients(ingredients):
+#     ingredients = ingredients.lower()
+#     ingredients = ingredients.replace('ingredients:', '').replace('made from:', '').strip()
+
+
+#     ingredients_lst = ast.literal_eval('[' + ingredients + ']')
 
 
 def define_source(path):
@@ -75,13 +103,13 @@ def apply_ingredient_slicer(entry):
         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
         if selected_data['quantity'] is None:
-            selected_data['quantity'] = 'NA'
+            selected_data['quantity'] = 'no_value_given'
 
         if selected_data['standardized_unit'] is None:
-            selected_data['standardized_unit'] = 'NA'
+            selected_data['standardized_unit'] = 'no_value_given'
             
     except Exception as e:  
         print(f'There was an error processing entry :"{entry}". {e}') 
-        selected_data = {'quantity': 'NA', 'standardized_unit': 'NA'}
+        selected_data = {'quantity': 'no_value_given', 'standardized_unit': 'no_value_given'}
 
     return selected_data

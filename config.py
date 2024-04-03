@@ -1,20 +1,19 @@
 import os
-# from dotenv import load_dotenv
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
-# load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 class Config:
-    # Base directory and path configurations
-    # BASE_DIR_NAME = 'fdc_data'
-    # BASE_DIR_PATH = os.getenv('BASE_DIR_PATH')
 
-    # Define paths for raw and output directories
     BASE_DIR = 'fdc_data'
+
     if not os.path.exists(BASE_DIR):
-        os.makedirs(BASE_DIR)
+        os.makedirs(BASE_DIR)   
+
 
     OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_output')
+
+
+
     if not os.path.exists(OUTPUT_DIR):
          os.makedirs(OUTPUT_DIR)
 
