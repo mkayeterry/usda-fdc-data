@@ -49,7 +49,6 @@ def format_col_values(col_value):
     
 
 
-
 def format_ingredients(ingredients):
     """
     Format the ingredients string by performing various preprocessing steps:

@@ -136,6 +136,9 @@ def process_branded(
     full_foods_pivot['brand_name'] = full_foods_pivot['brand_name'].apply(lambda x: format_col_values(x))
     full_foods_pivot['brand_owner'] = full_foods_pivot['brand_owner'].apply(lambda x: format_col_values(x))
 
+    # Format ingredient values using the format_ingredients function
+    full_foods_pivot['ingredients'] = full_foods_pivot['ingredients'].apply(lambda x: format_ingredients(x))
+
     full_foods_pivot = full_foods_pivot[[
                             'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 
                             'brand_name', 'food_description', 'ingredients', 'portion_amount', 
