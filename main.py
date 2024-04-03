@@ -11,7 +11,7 @@ DEFAULT_BASE_DIR = 'fdc_data'
 
 
 # Parse command-line arguments
-parser = argparse.ArgumentParser(description='Process some directories.')
+parser = argparse.ArgumentParser(description='Download and process USDA Food Data Central datasets.')
 parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='base directory (default: fdc_data)')
 args = parser.parse_args()
 

@@ -1,5 +1,4 @@
 import re
-import ast
 import ingredient_slicer
 
 
@@ -49,14 +48,49 @@ def format_col_values(col_value):
     return formatted_value
     
 
-# ingredients = 'INGREDIENTS: BEEF STOCK, CONTAINS LESS THAN 2% OF: MIREPOIX (CARROTS, CELERY, ONIONS), SALT, NATURAL FLAVORING, YEAST EXTRACT, CANE SUGAR.'
-
-# def format_ingredients(ingredients):
-#     ingredients = ingredients.lower()
-#     ingredients = ingredients.replace('ingredients:', '').replace('made from:', '').strip()
 
 
-#     ingredients_lst = ast.literal_eval('[' + ingredients + ']')
+def format_ingredients(ingredients):
+    """
+    Format the ingredients string by performing various preprocessing steps:
+    1. Remove substrings that contain less than a certain number of percentage symbols.
+    2. Convert the ingredients to lowercase and remove specific substrings like 'ingredients:' and 'made from:'.
+    3. Replace opening parentheses with commas.
+    4. Remove special characters except commas and normalize whitespace.
+    5. Split the ingredients string into a list, splitting at commas.
+    6. Strip whitespace from each item in the ingredients list.
+    
+    Args:
+        ingredients (str): The input string containing ingredients information.
+        
+    Returns:
+        list: A list of formatted ingredients.
+    """
+
+    # Matches phrases like "contains less than NUMBER %" or "contains less than NUMBER % of:"
+    CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_REGEX = re.compile(r'contains less than\s*(?:\d*\.\d+|\d+\s*/\s*\d+|\d+)\s*%', re.IGNORECASE)
+    CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_OF_REGEX = re.compile(r'contains less than\s*(?:\d*\.\d+|\d+\s*/\s*\d+|\d+)\s*%\s*of:', re.IGNORECASE)
+
+    # Remove substrings that contain less than a certain number of percentage symbols from the formatted ingredients
+    formatted_ingredients = CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_OF_REGEX.sub('', formatted_ingredients)
+    formatted_ingredients = CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_REGEX.sub('', formatted_ingredients)
+
+    # Convert the ingredients to lowercase and remove specific substrings
+    formatted_ingredients = ingredients.lower()
+    formatted_ingredients = formatted_ingredients.replace('ingredients:', '').replace('made from:', '')
+    formatted_ingredients = formatted_ingredients.replace('(', ',')
+
+    # Remove special characters except commas and normalize whitespace
+    formatted_ingredients = re.sub(r'[^\w\s,]', '', formatted_ingredients)
+    formatted_ingredients = re.sub(r'\s+', ' ', formatted_ingredients).strip()
+
+    # Split the ingredients string into a list, splitting at commas and stripping whitespace
+    formatted_ingredients = formatted_ingredients.split(',')
+    for idx, val in enumerate(formatted_ingredients):
+        formatted_ingredients[idx] = val.strip()
+
+    return formatted_ingredients
+
 
 
 def define_source(path):
