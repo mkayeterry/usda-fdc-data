@@ -22,25 +22,25 @@ BASE_DIR = args.base_dir
 RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_processed')
 
-print(f'Base directory set to:\n> {BASE_DIR}')
+print(f'\nBase directory set to:\n> {BASE_DIR}\n')
 
 
 # Ensure directories exist
 if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
-    print(f'Directory created:\n> {BASE_DIR}')
+    print(f'Directory created:\n> {BASE_DIR}\n')
 
 if not os.path.exists(RAW_DIR):
     os.makedirs(RAW_DIR)
-    print(f'Directory created:\n> {RAW_DIR}')
+    print(f'Directory created:\n> {RAW_DIR}\n')
 
     # Download USDA datasets only if they do not already exist
     download_usda_data(RAW_DIR)
-    print('USDA data download complete.')
+    print(f'USDA data download complete.\n')
 
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
-    print(f'Directory created:\n> {OUTPUT_DIR}')
+    print(f'Directory created:\n> {OUTPUT_DIR}\n')
 
 
 # Define specific data type paths
@@ -81,50 +81,55 @@ BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
 # Process data
 try:
     processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
-    processed_foundation_food.to_csv(os.path.join(BASE_DIR, 'processed_foundation_food.csv'))
-    print(f'Processing successfully completed:\n> {FOUNDATION_FOOD_DIR}')
+    processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
+    print(f'Individual processing successfully completed:\n> {FOUNDATION_FOOD_DIR}\n')
 except Exception as e:
-    print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}')
+    print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}\n')
 
 try:
     processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
-    processed_legacy_food.to_csv(os.path.join(BASE_DIR, 'processed_legacy_food.csv'))
-    print(f'Processing successfully completed:\n> {LEGACY_FOOD_DIR}')
+    processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
+    print(f'Individual processing successfully completed:\n> {SR_LEGACY_FOOD_DIR}\n')
 except Exception as e:
-    print(f'Error occurred while processing files in {LEGACY_FOOD_DIR}\n> {e}')
+    print(f'Error occurred while processing files in {SR_LEGACY_FOOD_DIR}\n> {e}\n')
 
 try:
     processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
-    processed_branded_food.to_csv(os.path.join(BASE_DIR, 'processed_branded_food.csv'))
-    print(f'Processing successfully completed:\n> {BRANDED_FOOD_DIR}')
+    processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
+    print(f'Individual processing successfully completed:\n> {BRANDED_FOOD_DIR}\n')
 except Exception as e:
-    print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}')
+    print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}\n')
 
 
 # Stack the datasets
 output_lst = []
-for path in os.listdir(OUTPUT_DIR): 
-    output_lst.append(path)
+for file_name in os.listdir(OUTPUT_DIR):
+    if 'foundation_food' in file_name:
+        output_lst.append(processed_foundation_food)
+    if 'legacy_food' in file_name:
+        output_lst.append(processed_legacy_food)
+    if 'branded_food' in file_name:
+        output_lst.append(processed_branded_food)
 
 stacked_data = pd.concat(output_lst)
 stacked_data.reset_index(drop=True, inplace=True)
 
 
-# Fill numeric columns with NaN values with default float
-numeric_columns = [
-    'fiber_total_dietary', 'sugars_total', 
-    'calcium_ca', 'iron_fe', 'vitamin_c_total_ascorbic_acid', 'vitamin_a_rae', 'vitamin_e_alphatocopherol', 
-    'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 
-    'fatty_acids_total_polyunsaturated', 'vitamin_k_phylloquinone', 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 
-    'folate_total', 'vitamin_b12', 'vitamin_d3_cholecalciferol', 'vitamin_d2_ergocalciferol', 'pantothenic_acid', 
-    'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'copper_cu', 'manganese_mn', 'selenium_se', 
-    'carotene_beta', 'retinol', 'vitamin_k_dihydrophylloquinone', 'vitamin_k_menaquinone4', 'tryptophan', 
-    'threonine', 'methionine', 'phenylalanine', 'tyrosine', 'valine', 'arginine', 'histidine', 'isoleucine', 
-    'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 
-    'glucose', 'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
-]
-for col in numeric_columns:
-    stacked_data[col] = stacked_data[col].fillna(0).astype(float)
+# # Fill numeric columns with NaN values with default float
+# numeric_columns = [
+#     'fiber_total_dietary', 'sugars_total', 
+#     'calcium_ca', 'iron_fe', 'vitamin_c_total_ascorbic_acid', 'vitamin_a_rae', 'vitamin_e_alphatocopherol', 
+#     'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 
+#     'fatty_acids_total_polyunsaturated', 'vitamin_k_phylloquinone', 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 
+#     'folate_total', 'vitamin_b12', 'vitamin_d3_cholecalciferol', 'vitamin_d2_ergocalciferol', 'pantothenic_acid', 
+#     'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'copper_cu', 'manganese_mn', 'selenium_se', 
+#     'carotene_beta', 'retinol', 'vitamin_k_dihydrophylloquinone', 'vitamin_k_menaquinone4', 'tryptophan', 
+#     'threonine', 'methionine', 'phenylalanine', 'tyrosine', 'valine', 'arginine', 'histidine', 'isoleucine', 
+#     'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 
+#     'glucose', 'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
+# ]
+# for col in numeric_columns:
+#     stacked_data[col] = stacked_data[col].fillna(0).astype(float)
 
 
 # Save stacked datasets
@@ -136,7 +141,10 @@ for path in os.listdir(RAW_DIR):
     os.remove(path)
 os.rmdir(RAW_DIR)
 
-# Remove processed data files (other than stacked) and folder
+# Remove individual processed data files and folder
 for path in os.listdir(OUTPUT_DIR):
     os.remove(path)
 os.rmdir(OUTPUT_DIR)
+
+
+print(f'Processing of USDA FDC data is complete.')

@@ -34,7 +34,7 @@ def download_usda_data(raw_dir):
         filename = os.path.basename(url)
         filepath = os.path.join(raw_dir, filename)
 
-        print(f"Downloading file paths to:\n> {filepath}")
+        print(f"Downloading file paths to:\n> {filepath}\n")
 
         download_url(url, filepath)
 

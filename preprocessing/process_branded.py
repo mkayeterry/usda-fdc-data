@@ -8,11 +8,15 @@ def process_branded(
         nutrient_path = None
     ):
 
+    # For identification of data in print statements
+    data_type = define_source(branded_food_path)[1]
+
     # Load datasets
-    branded_foods = pd.read_csv(branded_food_path, low_memory=False).head(10000)
-    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False).head(10000)
-    foods = pd.read_csv(food_path, low_memory=False).head(10000)
-    nutrients = pd.read_csv(nutrient_path, low_memory=False).head(10000)
+    print(f'[{data_type}] Loading files...\n')
+    branded_foods = pd.read_csv(branded_food_path, low_memory=False, nrows=5000)
+    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False, nrows=5000)
+    foods = pd.read_csv(food_path, low_memory=False, nrows=5000)
+    nutrients = pd.read_csv(nutrient_path, low_memory=False, nrows=5000)
 
     # Specify columns to keep for each dataframe
     branded_food_cols = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']
@@ -34,26 +38,27 @@ def process_branded(
 
     # Set data types for all columns, and fill NA values
     branded_foods['fdc_id'] = branded_foods['fdc_id'].fillna(0).astype(int)
-    branded_foods['brand_owner'] = branded_foods['brand_owner'].fillna('no_value_given').astype(str)
-    branded_foods['brand_name'] = branded_foods['brand_name'].fillna('no_value_given').astype(str)
-    branded_foods['ingredients'] = branded_foods['ingredients'].fillna('no_value_given').astype(str)
+    branded_foods['brand_owner'] = branded_foods['brand_owner'].fillna('no_value').astype(str)
+    branded_foods['brand_name'] = branded_foods['brand_name'].fillna('no_value').astype(str)
+    branded_foods['ingredients'] = branded_foods['ingredients'].fillna('no_value').astype(str)
     branded_foods['portion_amount'] = branded_foods['portion_amount'].fillna(0).astype(float)
-    branded_foods['portion_unit'] = branded_foods['portion_unit'].fillna('no_value_given').astype(str)
-    branded_foods['portion_modifier'] = branded_foods['portion_modifier'].fillna('no_value_given').astype(str)
-    branded_foods['category'] = branded_foods['category'].fillna('no_value_given').astype(str)
+    branded_foods['portion_unit'] = branded_foods['portion_unit'].fillna('no_value').astype(str)
+    branded_foods['portion_modifier'] = branded_foods['portion_modifier'].fillna('no_value').astype(str)
+    branded_foods['category'] = branded_foods['category'].fillna('no_value').astype(str)
 
     food_nutrients['fdc_id'] = food_nutrients['fdc_id'].fillna(0).astype(int)
     food_nutrients['nutrient_id'] = food_nutrients['nutrient_id'].fillna(0).astype(int)
     food_nutrients['nutrient_amount'] = food_nutrients['nutrient_amount'].fillna(0).astype(float)
 
     foods['fdc_id'] = foods['fdc_id'].fillna(0).astype(int)
-    foods['food_description'] = foods['food_description'].fillna('no_value_given').astype(str)
+    foods['food_description'] = foods['food_description'].fillna('no_value').astype(str)
 
     nutrients['nutrient_id'] = nutrients['nutrient_id'].fillna(0).astype(int)
-    nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('no_value_given').astype(str)
-    nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('no_value_given').astype(str)
+    nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('no_value').astype(str)
+    nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('no_value').astype(str)
 
-    # Merge datasets    
+    # Merge datasets   
+    print(f'[{data_type}] Merging datasets...\n') 
     nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
     nutrients_merged = nutrients_merged.drop(['nutrient_id'], axis=1)
 
@@ -63,19 +68,19 @@ def process_branded(
 
 
     # List of nutrients consumers care about
-    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)',
-                        'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
-                        'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
-                        'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
-                        'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
-                        'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
-                        'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
-                        'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
-                        'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
-                        'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
-                        'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
-                        'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
-                        'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
+    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
+                        # 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
+                        # 'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
+                        # 'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
+                        # 'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
+                        # 'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
+                        # 'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
+                        # 'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
+                        # 'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
+                        # 'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
+                        # 'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
+                        # 'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
+                        # 'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
 
     # Add condition to filter for rows with relevant_nutrients
     full_foods_filtered = full_foods_merged[full_foods_merged['nutrient_name'].isin(relevant_nutrients)]
@@ -95,9 +100,10 @@ def process_branded(
 
     full_foods_grouped = full_foods_filtered.groupby(['food_description', 'nutrient_name', 'portion_amount', 'portion_unit']).first()
 
-    full_foods_grouped['brand_name'] = full_foods_grouped['brand_name'].fillna('no_value_given')
-    full_foods_grouped['portion_modifier'] = full_foods_grouped['portion_modifier'].fillna('no_value_given')
+    full_foods_grouped['brand_name'] = full_foods_grouped['brand_name'].fillna('no_value')
+    full_foods_grouped['portion_modifier'] = full_foods_grouped['portion_modifier'].fillna('no_value')
 
+    print(f'[{data_type}] Pivoting dataset...\n') 
     full_foods_pivot = full_foods_grouped.pivot_table(
                                             index=['fdc_id', 
                                                 'food_description', 
@@ -119,11 +125,12 @@ def process_branded(
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
     # Add columns applying ingredient_slicer function
+    print(f'[{data_type}] Applying ingredient-slicer...\n') 
     full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
-    
+
     # Add missing columns to stack on other data type dfs
-    full_foods_pivot['portion_gram_weight'] = 'no_value_given'
+    full_foods_pivot['portion_gram_weight'] = 'no_value'
 
     # Format the column names using the format_col_names function
     lst_col_names = full_foods_pivot.columns.to_list()
@@ -144,12 +151,12 @@ def process_branded(
                             'brand_name', 'food_description', 'ingredients', 'portion_amount', 
                             'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 
                             'portion_gram_weight', 'portion_energy', 'energy', 'carbohydrate_by_difference', 
-                            'protein', 'total_lipid_fat', 'fiber_total_dietary', 'protein', 'calcium_ca', 'iron_fe', 
-                            'vitamin_c_total_ascorbic_acid',  'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 
-                            'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 'fatty_acids_total_polyunsaturated', 
-                            'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate_total', 'vitamin_b12',  'pantothenic_acid', 
-                            'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'manganese_mn', 'selenium_se'
+                            'protein', 'total_lipid_fat', #'fiber_total_dietary', 'protein', 'calcium_ca', 'iron_fe', 
+                            # 'vitamin_c_total_ascorbic_acid',  'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 
+                            # 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 'fatty_acids_total_polyunsaturated', 
+                            # 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate_total', 'vitamin_b12',  'pantothenic_acid', 
+                            # 'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'manganese_mn', 'selenium_se'
                         ]]
 
-
+    print(f'[{data_type}] Returning processed data...\n') 
     return full_foods_pivot

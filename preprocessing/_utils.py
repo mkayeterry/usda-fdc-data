@@ -71,7 +71,7 @@ def format_ingredients(ingredients):
     CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_OF_REGEX = re.compile(r'contains less than\s*(?:\d*\.\d+|\d+\s*/\s*\d+|\d+)\s*%\s*of:', re.IGNORECASE)
 
     # Remove substrings that contain less than a certain number of percentage symbols from the formatted ingredients
-    formatted_ingredients = CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_OF_REGEX.sub('', formatted_ingredients)
+    formatted_ingredients = CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_OF_REGEX.sub('', ingredients)
     formatted_ingredients = CONTAINS_LESS_THEN_NUMBER_PCT_SYMBOL_REGEX.sub('', formatted_ingredients)
 
     # Convert the ingredients to lowercase and remove specific substrings
@@ -136,13 +136,13 @@ def apply_ingredient_slicer(entry):
         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
         if selected_data['quantity'] is None:
-            selected_data['quantity'] = 'no_value_given'
+            selected_data['quantity'] = 'no_value'
 
         if selected_data['standardized_unit'] is None:
-            selected_data['standardized_unit'] = 'no_value_given'
+            selected_data['standardized_unit'] = 'no_value'
             
     except Exception as e:  
         print(f'There was an error processing entry :"{entry}". {e}') 
-        selected_data = {'quantity': 'no_value_given', 'standardized_unit': 'no_value_given'}
+        selected_data = {'quantity': 'no_value', 'standardized_unit': 'no_value'}
 
     return selected_data
