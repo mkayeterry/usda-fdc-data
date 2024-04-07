@@ -1,5 +1,6 @@
 import argparse
 import os
+import pandas as pd
 
 from download_datasets import download_usda_data
 from preprocessing.process_foundation_and_sr_legacy import process_foundation_and_sr_legacy
@@ -21,17 +22,25 @@ BASE_DIR = args.base_dir
 RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_processed')
 
+print(f'Base directory set to:\n> {BASE_DIR}')
+
 
 # Ensure directories exist
 if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
+    print(f'Directory created:\n> {BASE_DIR}')
 
 if not os.path.exists(RAW_DIR):
     os.makedirs(RAW_DIR)
-    download_usda_data(RAW_DIR) # Download USDA datasets using download_usda_data function
+    print(f'Directory created:\n> {RAW_DIR}')
+
+    # Download USDA datasets only if they do not already exist
+    download_usda_data(RAW_DIR)
+    print('USDA data download complete.')
 
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
+    print(f'Directory created:\n> {OUTPUT_DIR}')
 
 
 # Define specific data type paths
@@ -70,18 +79,36 @@ BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
 
 
 # Process data
-processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
-processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
+try:
+    processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
+    processed_foundation_food.to_csv(os.path.join(BASE_DIR, 'processed_foundation_food.csv'))
+    print(f'Processing successfully completed:\n> {FOUNDATION_FOOD_DIR}')
+except Exception as e:
+    print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}')
 
-processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
-processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
+try:
+    processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
+    processed_legacy_food.to_csv(os.path.join(BASE_DIR, 'processed_legacy_food.csv'))
+    print(f'Processing successfully completed:\n> {LEGACY_FOOD_DIR}')
+except Exception as e:
+    print(f'Error occurred while processing files in {LEGACY_FOOD_DIR}\n> {e}')
 
-processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
-processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
+try:
+    processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
+    processed_branded_food.to_csv(os.path.join(BASE_DIR, 'processed_branded_food.csv'))
+    print(f'Processing successfully completed:\n> {BRANDED_FOOD_DIR}')
+except Exception as e:
+    print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}')
+
 
 # Stack the datasets
-stacked_data = pd.concat([processed_foundation_food, processed_legacy_food, processed_branded_food])
+output_lst = []
+for path in os.listdir(OUTPUT_DIR): 
+    output_lst.append(path)
+
+stacked_data = pd.concat(output_lst)
 stacked_data.reset_index(drop=True, inplace=True)
+
 
 # Fill numeric columns with NaN values with default float
 numeric_columns = [
@@ -96,10 +123,20 @@ numeric_columns = [
     'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 
     'glucose', 'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
 ]
-
 for col in numeric_columns:
     stacked_data[col] = stacked_data[col].fillna(0).astype(float)
-    
+
 
 # Save stacked datasets
-stacked_data.to_csv(os.path.join(OUTPUT_DIR, 'processed_usda_data.csv'), index=False)
+stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
+
+
+# Remove raw data files and folder
+for path in os.listdir(RAW_DIR):
+    os.remove(path)
+os.rmdir(RAW_DIR)
+
+# Remove processed data files (other than stacked) and folder
+for path in os.listdir(OUTPUT_DIR):
+    os.remove(path)
+os.rmdir(OUTPUT_DIR)
