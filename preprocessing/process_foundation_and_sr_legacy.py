@@ -10,11 +10,7 @@ def process_foundation_and_sr_legacy(
         measure_unit_path = None
     ):
 
-    # For identification of data in print statements
-    data_type = define_source(food_path)[1]
-
     # Load datasets
-    print(f'[{data_type}] Loading files...\n')
     food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
     foods = pd.read_csv(food_path, low_memory=False)
     nutrients = pd.read_csv(nutrient_path, low_memory=False)
@@ -72,8 +68,6 @@ def process_foundation_and_sr_legacy(
     measure_units['measure_unit_id'] = measure_units['measure_unit_id'].fillna(0).astype(int)
     measure_units['portion_unit'] = measure_units['portion_unit'].fillna('no_value').astype(str)
 
-
-    print(f'[{data_type}] Merging datasets...\n') 
     foods_merged = pd.merge(foods, categories, on='category_id', how='left')
     foods_merged = foods_merged.drop(['category_id'], axis=1)
 
@@ -125,7 +119,6 @@ def process_foundation_and_sr_legacy(
     # Aggregate rows with equal values
     full_foods_agg = full_foods_filtered.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
-    print(f'[{data_type}] Pivoting dataset...\n') 
     full_foods_pivot = pd.pivot_table(full_foods_agg,
                                     index=['fdc_id', 
                                         'food_description', 
@@ -145,7 +138,6 @@ def process_foundation_and_sr_legacy(
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
     # Add columns applying ingredient_slicer function
-    print(f'[{data_type}] Applying ingredient-slicer...\n')
     full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
     
@@ -177,7 +169,6 @@ def process_foundation_and_sr_legacy(
                             # 'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
                         ]]
 
-    print(f'[{data_type}] Returning processed data...\n') 
     return full_foods_pivot
 
 

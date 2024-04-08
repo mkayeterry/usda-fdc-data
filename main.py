@@ -19,8 +19,8 @@ args = parser.parse_args()
 
 # Define directories
 BASE_DIR = args.base_dir
-RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_processed')
+RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
 
 print(f'\nBase directory set to:\n> {BASE_DIR}\n')
 
@@ -30,17 +30,14 @@ if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
     print(f'Directory created:\n> {BASE_DIR}\n')
 
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+
 if not os.path.exists(RAW_DIR):
     os.makedirs(RAW_DIR)
-    print(f'Directory created:\n> {RAW_DIR}\n')
 
     # Download USDA datasets only if they do not already exist
     download_usda_data(RAW_DIR)
-    print(f'USDA data download complete.\n')
-
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
-    print(f'Directory created:\n> {OUTPUT_DIR}\n')
 
 
 # Define specific data type paths
@@ -80,38 +77,29 @@ BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
 
 # Process data
 try:
+    print(f'Initializing processing for:\n> {FOUNDATION_FOOD_DIR}\n')
     processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
     processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
-    print(f'Individual processing successfully completed:\n> {FOUNDATION_FOOD_DIR}\n')
 except Exception as e:
     print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}\n')
 
 try:
+    print(f'Initializing processing for:\n> {SR_LEGACY_FOOD_DIR}\n')
     processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
     processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
-    print(f'Individual processing successfully completed:\n> {SR_LEGACY_FOOD_DIR}\n')
 except Exception as e:
     print(f'Error occurred while processing files in {SR_LEGACY_FOOD_DIR}\n> {e}\n')
 
 try:
+    print(f'Initializing processing for:\n> {BRANDED_FOOD_DIR}\n')
     processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
     processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
-    print(f'Individual processing successfully completed:\n> {BRANDED_FOOD_DIR}\n')
 except Exception as e:
     print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}\n')
 
 
-# Stack the datasets
-output_lst = []
-for file_name in os.listdir(OUTPUT_DIR):
-    if 'foundation_food' in file_name:
-        output_lst.append(processed_foundation_food)
-    if 'legacy_food' in file_name:
-        output_lst.append(processed_legacy_food)
-    if 'branded_food' in file_name:
-        output_lst.append(processed_branded_food)
-
-stacked_data = pd.concat(output_lst)
+# Stack processed data
+stacked_data = pd.concat([processed_foundation_food, processed_legacy_food, processed_branded_food])
 stacked_data.reset_index(drop=True, inplace=True)
 
 
@@ -136,15 +124,28 @@ stacked_data.reset_index(drop=True, inplace=True)
 stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
 
 
-# Remove raw data files and folder
-for path in os.listdir(RAW_DIR):
-    os.remove(path)
+# Remove raw data files
+for root, dirs, files in os.walk(RAW_DIR):
+    for file in files:
+        file_path = os.path.join(root, file)
+        os.remove(file_path)
+
+# Remove all directories (in reverse order)
+for root, dirs, files in os.walk(RAW_DIR, topdown=False):
+    for dir in dirs:
+        dir_path = os.path.join(root, dir)
+        os.rmdir(dir_path)
+
 os.rmdir(RAW_DIR)
 
+
 # Remove individual processed data files and folder
-for path in os.listdir(OUTPUT_DIR):
-    os.remove(path)
+for root, dirs, files in os.walk(OUTPUT_DIR):
+    for file in files:
+        file_path = os.path.join(root, file)
+        os.remove(file_path)
+
 os.rmdir(OUTPUT_DIR)
 
 
-print(f'Processing of USDA FDC data is complete.')
+print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.csv") is now available in:\n> {BASE_DIR}\n')

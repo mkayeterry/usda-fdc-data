@@ -1,4 +1,5 @@
 import pandas as pd
+import gc
 from preprocessing._utils import *
 
 def process_branded(
@@ -8,11 +9,7 @@ def process_branded(
         nutrient_path = None
     ):
 
-    # For identification of data in print statements
-    data_type = define_source(branded_food_path)[1]
-
     # Load datasets
-    print(f'[{data_type}] Loading files...\n')
     branded_foods = pd.read_csv(branded_food_path, low_memory=False, nrows=5000)
     food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False, nrows=5000)
     foods = pd.read_csv(food_path, low_memory=False, nrows=5000)
@@ -57,8 +54,7 @@ def process_branded(
     nutrients['nutrient_name'] = nutrients['nutrient_name'].fillna('no_value').astype(str)
     nutrients['nutrient_unit'] = nutrients['nutrient_unit'].fillna('no_value').astype(str)
 
-    # Merge datasets   
-    print(f'[{data_type}] Merging datasets...\n') 
+    # Merge datasets    
     nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
     nutrients_merged = nutrients_merged.drop(['nutrient_id'], axis=1)
 
@@ -103,7 +99,7 @@ def process_branded(
     full_foods_grouped['brand_name'] = full_foods_grouped['brand_name'].fillna('no_value')
     full_foods_grouped['portion_modifier'] = full_foods_grouped['portion_modifier'].fillna('no_value')
 
-    print(f'[{data_type}] Pivoting dataset...\n') 
+
     full_foods_pivot = full_foods_grouped.pivot_table(
                                             index=['fdc_id', 
                                                 'food_description', 
@@ -125,7 +121,6 @@ def process_branded(
     full_foods_pivot['data_type'] = define_source(food_path)[1]
 
     # Add columns applying ingredient_slicer function
-    print(f'[{data_type}] Applying ingredient-slicer...\n') 
     full_foods_pivot['standardized_quantity'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods_pivot['standardized_portion'] = full_foods_pivot['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
@@ -158,5 +153,4 @@ def process_branded(
                             # 'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'manganese_mn', 'selenium_se'
                         ]]
 
-    print(f'[{data_type}] Returning processed data...\n') 
     return full_foods_pivot
