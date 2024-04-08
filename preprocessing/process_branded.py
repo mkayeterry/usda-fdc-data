@@ -1,5 +1,6 @@
 import pandas as pd
 import gc
+import timeit
 from preprocessing._utils import *
 
 def process_branded(
@@ -9,10 +10,14 @@ def process_branded(
         nutrient_path = None
     ):
 
+    print(f'\n> loading files...')
+    start = timeit.default_timer()
     branded_foods = pd.read_csv(branded_food_path, low_memory=False)
     food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
     foods = pd.read_csv(food_path, low_memory=False)
     nutrients = pd.read_csv(nutrient_path, low_memory=False)
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
     # Drop unnecessary columns
     branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
@@ -26,6 +31,7 @@ def process_branded(
     foods.rename(columns={'description': 'food_description'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
 
+    print(f'> garbage collection...\n')
     # Release memory
     del branded_food_path, food_nutrient_path, nutrient_path
     gc.collect()
@@ -51,14 +57,19 @@ def process_branded(
     nutrients['nutrient_name'].fillna('no_value', inplace=True)
     nutrients['nutrient_unit'].fillna('no_value', inplace=True)
 
-    # Merge datasets    
+    # Merge datasets 
+    print('> merging datasets...') 
+    start = timeit.default_timer()  
     nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
     nutrients_merged.drop(['nutrient_id'], axis=1, inplace=True)
 
     foods_and_nutrients_merged = pd.merge(foods, nutrients_merged, on='fdc_id', how='left')
 
     full_foods = pd.merge(foods_and_nutrients_merged, branded_foods, on='fdc_id', how='left')
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
+    print(f'> garbage collection...\n')
     # Release memory
     gc.collect()
 
@@ -96,12 +107,17 @@ def process_branded(
     # Release memory
     gc.collect()
 
+    print('> grouping data...')
+    start = timeit.default_timer()
     full_foods = full_foods.groupby(['food_description', 'nutrient_name', 'portion_amount', 'portion_unit']).first()
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
     full_foods['brand_name'].fillna('no_value', inplace=True)
     full_foods['portion_modifier'].fillna('no_value', inplace=True)
 
-
+    print('> pivoting table...')
+    start = timeit.default_timer()
     full_foods = full_foods.pivot_table(
                                 index=['fdc_id', 
                                     'food_description', 
@@ -114,7 +130,10 @@ def process_branded(
                                     'portion_modifier'],
                                 columns='nutrient_name', 
                                 values='per_gram_amt').reset_index()
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
+    print(f'> garbage collection...\n')
     # Release memory
     gc.collect()
 
@@ -125,15 +144,21 @@ def process_branded(
     full_foods['usda_data_source'] = define_source(food_path)[0]
     full_foods['data_type'] = define_source(food_path)[1]
 
+    print('> applying ingredient-slicer...')
+    start = timeit.default_timer()
     # Add columns applying ingredient_slicer function
     full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
     # # Add missing columns to stack on other data type dfs
     # cols_to_add = ['portion_gram_weight', 'fructose', 'serine', 'glucose', 'copper_cu', 'vitamin_a_rae', 'sugars_total', 'galactose', 'betaine', 'threonine', 'glycine', 'vitamin_d3_cholecalciferol', 'cystine', 'leucine', 'vitamin_k_menaquinone4', 'valine', 'choline_total', 'lysine', 'vitamin_k_dihydrophylloquinone', 'tyrosine', 'vitamin_e_alphatocopherol', 'proline', 'tryptophan', 'phenylalanine', 'vitamin_k_phylloquinone', 'methionine', 'isoleucine', 'maltose', 'histidine', 'alanine', 'vitamin_d2_ergocalciferol', 'carotene_beta', 'glutamic_acid', 'arginine', 'retinol', 'sucrose', 'lactose']
     # for i in cols_to_add:
     #     full_foods[i] = 0.0
 
+    print('> formatting column names and values...')
+    start = timeit.default_timer()
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()
     lst_col_names = format_col_names(lst_col_names)
@@ -147,6 +172,8 @@ def process_branded(
 
     # Format ingredient values using the format_ingredients function
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
+    stop = timeit.default_timer()
+    print(f'> processing time: {stop - start}\n')
 
     # full_foods = full_foods[[
     #                         'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 
