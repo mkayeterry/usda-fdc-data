@@ -97,7 +97,7 @@ try:
     stop = timeit.default_timer()
     print(f'> processing time: {stop - start}\n') 
 
-    processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
+    processed_foundation_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_foundation_food.parquet'))
 
 except Exception as e:
     print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}\n')
@@ -112,7 +112,7 @@ try:
     stop = timeit.default_timer()
     print(f'> processing time: {stop - start}\n')    
     
-    processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
+    processed_legacy_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_legacy_food.parquet'))
 
 except Exception as e:
     print(f'Error occurred while processing files in {SR_LEGACY_FOOD_DIR}\n> {e}\n')
@@ -127,7 +127,7 @@ try:
     stop = timeit.default_timer()
     print(f'> processing time: {stop - start}\n') 
     
-    processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
+    processed_branded_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_branded_food.parquet'))
 
 except Exception as e:
     print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}\n')
@@ -151,7 +151,7 @@ stacked_data = stacked_data[[
                         'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
                     ]]
 
-stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
+stacked_data.to_parquet(os.path.join(BASE_DIR, 'processed_usda_data.parquet'), index=False)
 
 
 if delete_files == True:
@@ -179,4 +179,4 @@ if delete_files == True:
     os.rmdir(OUTPUT_DIR)
 
 
-print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.csv") is now available in:\n> {BASE_DIR}\n')
+print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.parquet") is now available in:\n> {BASE_DIR}\n')
