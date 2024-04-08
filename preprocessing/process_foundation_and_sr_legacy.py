@@ -1,4 +1,5 @@
 import pandas as pd
+import gc
 from preprocessing._utils import *
 
 def process_foundation_and_sr_legacy(
@@ -18,21 +19,13 @@ def process_foundation_and_sr_legacy(
     portions = pd.read_csv(portion_path, low_memory=False)
     measure_units = pd.read_csv(measure_unit_path, low_memory=False)
 
-    # Specify columns to keep for each dataframe
-    food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
-    food_cols = ['fdc_id', 'description', 'food_category_id']
-    nutrient_cols = ['id', 'name', 'unit_name']
-    category_cols = ['id', 'description']
-    portion_cols = ['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']
-    measure_unit_cols = ['id', 'name']
-
-    # Execute column selection
-    food_nutrients = food_nutrients[food_nutrient_cols]
-    foods = foods[food_cols]
-    nutrients = nutrients[nutrient_cols]
-    categories = categories[category_cols]
-    portions = portions[portion_cols]
-    measure_units = measure_units[measure_unit_cols]
+    # Drop unnecessary columns
+    food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
+    foods.drop(columns=foods.columns.difference(['fdc_id', 'description', 'food_category_id']), inplace=True)
+    nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
+    categories.drop(columns=categories.columns.difference(['id', 'description']), inplace=True)
+    portions.drop(columns=portions.columns.difference(['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']), inplace=True)
+    measure_units.drop(columns=measure_units.columns.difference(['id', 'name']), inplace=True)
 
     # Rename columns
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
@@ -41,6 +34,10 @@ def process_foundation_and_sr_legacy(
     categories.rename(columns={'id': 'category_id', 'description': 'category'}, inplace=True)
     portions.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
     measure_units.rename(columns={'id': 'measure_unit_id', 'name': 'portion_unit'}, inplace=True)
+
+    # Release memory
+    del food_nutrient_path, food_path, nutrient_path, category_path, portion_path, measure_unit_path
+    gc.collect()
 
     # Set data types for all columns, and fill NA values
     food_nutrients['fdc_id'] = food_nutrients['fdc_id'].fillna(0).astype(int)
@@ -88,6 +85,9 @@ def process_foundation_and_sr_legacy(
 
     full_foods_merged = pd.merge(foods_and_nutrients_merged, portions_merged, on='fdc_id', how='inner')
 
+    # Release memory
+    gc.collect()
+
     # List of nutrients consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
                         # 'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
@@ -116,6 +116,9 @@ def process_foundation_and_sr_legacy(
     full_foods_filtered['per_gram_amt'] = round(full_foods_filtered.nutrient_amount * full_foods_filtered.multiplier, 10)
     full_foods_filtered.drop(['multiplier'], axis=1, inplace=True)
 
+    # Release memory
+    gc.collect()
+
     # Aggregate rows with equal values
     full_foods_agg = full_foods_filtered.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
@@ -129,6 +132,9 @@ def process_foundation_and_sr_legacy(
                                         'portion_gram_weight'],
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
+
+    # Release memory
+    gc.collect()
 
     # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_gram_weight']
@@ -168,6 +174,9 @@ def process_foundation_and_sr_legacy(
                             # 'isoleucine', 'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 'glucose', 
                             # 'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
                         ]]
+
+    # Release memory
+    gc.collect()
 
     return full_foods_pivot
 

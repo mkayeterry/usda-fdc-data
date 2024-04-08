@@ -9,29 +9,26 @@ def process_branded(
         nutrient_path = None
     ):
 
-    # Load datasets
     branded_foods = pd.read_csv(branded_food_path, low_memory=False, nrows=5000)
     food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False, nrows=5000)
     foods = pd.read_csv(food_path, low_memory=False, nrows=5000)
     nutrients = pd.read_csv(nutrient_path, low_memory=False, nrows=5000)
 
-    # Specify columns to keep for each dataframe
-    branded_food_cols = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']
-    food_nutrient_cols = ['fdc_id', 'nutrient_id', 'amount']
-    food_cols = ['fdc_id', 'description']
-    nutrient_cols = ['id', 'name', 'unit_name']
+    # Drop unnecessary columns
+    branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
+    food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
+    foods.drop(columns=foods.columns.difference(['fdc_id', 'description']), inplace=True)
+    nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
 
-    # Execute column selection
-    branded_foods = branded_foods[branded_food_cols]
-    food_nutrients = food_nutrients[food_nutrient_cols]
-    foods = foods[food_cols]
-    nutrients = nutrients[nutrient_cols]
-
-    # Rename columns
+    # Perform inplace renaming of columns
     branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
     foods.rename(columns={'description': 'food_description'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
+
+    # Release memory
+    del branded_food_path, food_nutrient_path, food_path, nutrient_path
+    gc.collect()
 
     # Set data types for all columns, and fill NA values
     branded_foods['fdc_id'] = branded_foods['fdc_id'].fillna(0).astype(int)
@@ -62,6 +59,8 @@ def process_branded(
 
     full_foods_merged = pd.merge(foods_and_nutrients_merged, branded_foods, on='fdc_id', how='left')
 
+    # Release memory
+    gc.collect()
 
     # List of nutrients consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)']
@@ -94,6 +93,9 @@ def process_branded(
     full_foods_filtered.drop(['nutrient_unit'], axis=1, inplace=True)
     full_foods_filtered.drop(['nutrient_amount'], axis=1, inplace=True)
 
+    # Release memory
+    gc.collect()
+
     full_foods_grouped = full_foods_filtered.groupby(['food_description', 'nutrient_name', 'portion_amount', 'portion_unit']).first()
 
     full_foods_grouped['brand_name'] = full_foods_grouped['brand_name'].fillna('no_value')
@@ -112,6 +114,9 @@ def process_branded(
                                                 'portion_modifier'],
                                             columns='nutrient_name', 
                                             values='per_gram_amt').reset_index()
+
+    # Release memory
+    gc.collect()
 
     # Add portion_energy column as calorie estimate
     full_foods_pivot['portion_energy'] = full_foods_pivot['Energy'] * full_foods_pivot['portion_amount']
@@ -152,5 +157,8 @@ def process_branded(
                             # 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate_total', 'vitamin_b12',  'pantothenic_acid', 
                             # 'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'manganese_mn', 'selenium_se'
                         ]]
+
+    # Release memory
+    gc.collect()
 
     return full_foods_pivot
