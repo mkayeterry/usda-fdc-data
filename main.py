@@ -15,7 +15,18 @@ DEFAULT_BASE_DIR = 'fdc_data'
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='Download and process USDA Food Data Central datasets.')
 parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='base directory (default: fdc_data)')
+parser.add_argument('--delete_files', action='store_true', default=True, help='delete downloaded and individual processed files, leaving only the stacked, processed data (default: True)')
 args = parser.parse_args()
+
+
+# Define delete_files flag
+delete_files = args.delete_files
+print(f'\ndelete_files set to:\n> {delete_files}')
+
+if delete_files:
+    print(f'Raw and individual files will be deleted after processing.\n')
+if not delete_files:
+    print(f'Raw and individual files will remain after processing.\n')
 
 
 # Define directories
@@ -84,7 +95,7 @@ try:
     processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} seconds\n') 
+    print(f'> processing time: {stop - start} s\n') 
 
     processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
 
@@ -99,7 +110,7 @@ try:
     processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} seconds\n')    
+    print(f'> processing time: {stop - start} s\n')    
     
     processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
 
@@ -114,7 +125,7 @@ try:
     processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} seconds\n') 
+    print(f'> processing time: {stop - start} s\n') 
     
     processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
 
@@ -143,28 +154,29 @@ stacked_data = stacked_data[[
 stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
 
 
-# Remove raw data files
-for root, dirs, files in os.walk(RAW_DIR):
-    for file in files:
-        file_path = os.path.join(root, file)
-        os.remove(file_path)
+if delete_files:
+    # Remove raw data files
+    for root, dirs, files in os.walk(RAW_DIR):
+        for file in files:
+            file_path = os.path.join(root, file)
+            os.remove(file_path)
 
-# Remove all directories (in reverse order)
-for root, dirs, files in os.walk(RAW_DIR, topdown=False):
-    for dir in dirs:
-        dir_path = os.path.join(root, dir)
-        os.rmdir(dir_path)
+    # Remove all directories (in reverse order)
+    for root, dirs, files in os.walk(RAW_DIR, topdown=False):
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            os.rmdir(dir_path)
 
-os.rmdir(RAW_DIR)
+    os.rmdir(RAW_DIR)
 
 
-# Remove individual processed data files and folder
-for root, dirs, files in os.walk(OUTPUT_DIR):
-    for file in files:
-        file_path = os.path.join(root, file)
-        os.remove(file_path)
+    # Remove individual processed data files and folder
+    for root, dirs, files in os.walk(OUTPUT_DIR):
+        for file in files:
+            file_path = os.path.join(root, file)
+            os.remove(file_path)
 
-os.rmdir(OUTPUT_DIR)
+    os.rmdir(OUTPUT_DIR)
 
 
 print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.csv") is now available in:\n> {BASE_DIR}\n')
