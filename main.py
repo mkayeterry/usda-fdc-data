@@ -1,7 +1,6 @@
 import argparse
 import os
 import pandas as pd
-import timeit
 
 from download_datasets import download_usda_data
 from preprocessing.process_foundation_and_sr_legacy import process_foundation_and_sr_legacy
@@ -89,46 +88,25 @@ BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
 
 # Process data, tracking processing time per file
 try:
-    print(f'Initializing processing for:\n> {FOUNDATION_FOOD_DIR}')
-    start = timeit.default_timer()
-
+    print(f'Initializing processing for:\n> {FOUNDATION_FOOD_DIR}\n')
     processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
-    
-    stop = timeit.default_timer()
-    print(f'> processing time: {stop - start}\n') 
-
     processed_foundation_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_foundation_food.parquet'))
-
 except Exception as e:
     print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}\n')
 
 
 try:
-    print(f'Initializing processing for:\n> {SR_LEGACY_FOOD_DIR}')
-    start = timeit.default_timer()
-
+    print(f'Initializing processing for:\n> {SR_LEGACY_FOOD_DIR}\n')
     processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
-    
-    stop = timeit.default_timer()
-    print(f'> processing time: {stop - start}\n')    
-    
     processed_legacy_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_legacy_food.parquet'))
-
 except Exception as e:
     print(f'Error occurred while processing files in {SR_LEGACY_FOOD_DIR}\n> {e}\n')
 
 
 try:
-    print(f'Initializing processing for:\n> {BRANDED_FOOD_DIR}')
-    start = timeit.default_timer()
-    
+    print(f'Initializing processing for:\n> {BRANDED_FOOD_DIR}\n')
     processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
-    
-    stop = timeit.default_timer()
-    print(f'> processing time: {stop - start}\n') 
-    
     processed_branded_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_branded_food.parquet'))
-
 except Exception as e:
     print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}\n')
 
