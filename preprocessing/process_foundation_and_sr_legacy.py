@@ -77,8 +77,8 @@ def process_foundation_and_sr_legacy(
     else:
         portions = pd.merge(portions, measure_units, on='measure_unit_id', how='left')
 
-    portions_merged.drop(['measure_unit_id'], axis=1, inplace=True)
-    portions_merged.drop(['portion_id'], axis=1, inplace=True)
+    portions.drop(['measure_unit_id'], axis=1, inplace=True)
+    portions.drop(['portion_id'], axis=1, inplace=True)
 
     full_foods = pd.merge(foods, nutrients, on='fdc_id', how='left')
     full_foods = pd.merge(full_foods, portions, on='fdc_id', how='inner')
