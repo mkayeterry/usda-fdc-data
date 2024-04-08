@@ -13,20 +13,20 @@ DEFAULT_BASE_DIR = 'fdc_data'
 
 
 # Parse command-line arguments
-parser = argparse.ArgumentParser(description='Download and process USDA Food Data Central datasets.')
-parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='base directory (default: fdc_data)')
-parser.add_argument('--delete_files', action='store_true', default=True, help='delete downloaded and individual processed files, leaving only the stacked, processed data (default: True)')
+parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
+parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='specify base directory (default: fdc_data)')
+parser.add_argument('--delete_files', default=True, help='delete raw/indv files, leaving only processed data (default: True)')
 args = parser.parse_args()
 
 
 # Define delete_files flag
 delete_files = args.delete_files
-print(f'\ndelete_files set to:\n> {delete_files}')
+print(f'\nDelete files flag set to:')
 
-if delete_files:
-    print(f'Raw and individual files will be deleted after processing.\n')
-if not delete_files:
-    print(f'Raw and individual files will remain after processing.\n')
+if delete_files == True:
+    print(f'> {delete_files}. Raw and individual files will be deleted after processing.\n')
+if not delete_files == False:
+    print(f'> {delete_files}. Raw and individual files will remain after processing.\n')
 
 
 # Define directories
@@ -34,7 +34,7 @@ BASE_DIR = args.base_dir
 OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_processed')
 RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
 
-print(f'\nBase directory set to:\n> {BASE_DIR}\n')
+print(f'Base directory set to:\n> {BASE_DIR}\n')
 
 
 # Ensure directories exist
@@ -95,7 +95,7 @@ try:
     processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} s\n') 
+    print(f'> processing time: {stop - start}\n') 
 
     processed_foundation_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_foundation_food.csv'))
 
@@ -110,7 +110,7 @@ try:
     processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} s\n')    
+    print(f'> processing time: {stop - start}\n')    
     
     processed_legacy_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_legacy_food.csv'))
 
@@ -125,7 +125,7 @@ try:
     processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
     
     stop = timeit.default_timer()
-    print(f'> processing time: {stop - start} s\n') 
+    print(f'> processing time: {stop - start}\n') 
     
     processed_branded_food.to_csv(os.path.join(OUTPUT_DIR, 'processed_branded_food.csv'))
 
@@ -154,7 +154,7 @@ stacked_data = stacked_data[[
 stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
 
 
-if delete_files:
+if delete_files == True:
     # Remove raw data files
     for root, dirs, files in os.walk(RAW_DIR):
         for file in files:
