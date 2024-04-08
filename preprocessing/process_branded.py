@@ -52,13 +52,11 @@ def process_branded(
     nutrients['nutrient_unit'].fillna('no_value', inplace=True)
 
     # Merge datasets  
-    nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
-    nutrients_merged.drop(['nutrient_id'], axis=1, inplace=True)
-
-    foods_and_nutrients_merged = pd.merge(foods, nutrients_merged, on='fdc_id', how='left')
-
-    full_foods = pd.merge(foods_and_nutrients_merged, branded_foods, on='fdc_id', how='left')
-
+    full_foods = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
+    full_foods.drop(['nutrient_id'], axis=1, inplace=True)
+    
+    full_foods = pd.merge(foods, full_foods, on='fdc_id', how='left')
+    full_foods = pd.merge(full_foods, branded_foods, on='fdc_id', how='left')
 
     # Release memory
     gc.collect()

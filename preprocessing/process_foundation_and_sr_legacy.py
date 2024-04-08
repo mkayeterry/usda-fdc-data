@@ -65,25 +65,23 @@ def process_foundation_and_sr_legacy(
     measure_units['measure_unit_id'].fillna(0, inplace=True)
     measure_units['portion_unit'].fillna('no_value', inplace=True)
 
-    foods_merged = pd.merge(foods, categories, on='category_id', how='left')
-    foods_merged = foods_merged.drop(['category_id'], axis=1)
+    foods = pd.merge(foods, categories, on='category_id', how='left')
+    foods.drop(['category_id'], axis=1, inplace=True)
 
-    nutrients_merged = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
-    nutrients_merged = nutrients_merged.drop(['nutrient_id'], axis=1)
+    nutrients = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
+    nutrients.drop(['nutrient_id'], axis=1, inplace=True)
 
     # If True, portion_units are non-applicable
     if (portions['measure_unit_id'] == 9999).all():
         portions['portion_unit'] = 'no_value'
-        portions_merged = portions
     else:
-        portions_merged = pd.merge(portions, measure_units, on='measure_unit_id', how='left')
+        portions = pd.merge(portions, measure_units, on='measure_unit_id', how='left')
 
-    portions_merged = portions_merged.drop(['measure_unit_id'], axis=1)
-    portions_merged = portions_merged.drop(['portion_id'], axis=1)
+    portions_merged.drop(['measure_unit_id'], axis=1, inplace=True)
+    portions_merged.drop(['portion_id'], axis=1, inplace=True)
 
-    foods_and_nutrients_merged = pd.merge(foods_merged, nutrients_merged, on='fdc_id', how='left')
-
-    full_foods = pd.merge(foods_and_nutrients_merged, portions_merged, on='fdc_id', how='inner')
+    full_foods = pd.merge(foods, nutrients, on='fdc_id', how='left')
+    full_foods = pd.merge(full_foods, portions, on='fdc_id', how='inner')
 
     # Release memory
     gc.collect()
