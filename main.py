@@ -129,10 +129,15 @@ stacked_data = stacked_data[[
                         'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
                     ]]
 
+
+for col in stacked_data.columns.tolist():
+    fill_na_and_define_dtype(stacked_data, col)
+
 stacked_data.to_parquet(os.path.join(BASE_DIR, 'processed_usda_data.parquet'), index=False)
 
 
 if delete_files == True:
+    
     # Remove raw data files
     for root, dirs, files in os.walk(RAW_DIR):
         for file in files:

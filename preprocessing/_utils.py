@@ -146,3 +146,111 @@ def apply_ingredient_slicer(entry):
         selected_data = {'quantity': 'no_value', 'standardized_unit': 'no_value'}
 
     return selected_data
+
+
+
+def fill_na_and_define_dtype(df, col):
+    """
+    Fill NaN values in the specified column of the DataFrame with predefined values 
+    based on the data types defined in the 'data_types' dictionary. Also, convert 
+    the data type of the column to float32 if it matches the float type.
+
+    Parameters:
+        df (pandas.DataFrame): The DataFrame to be processed.
+        col (str): The column name to be processed.
+    """
+    data_types = {
+        'alanine': 0.0, 
+        'arginine': 0.0, 
+        'betaine': 0.0, 
+        'brand_name': 'no_value', 
+        'brand_owner': 'no_value', 
+        'calcium_ca': 0.0, 
+        'carbohydrate_by_difference': 0.0, 
+        'carotene_beta': 0.0, 
+        'category': 'no_value', 
+        'category_id': 0, 
+        'cholesterol': 0.0, 
+        'choline_total': 0.0, 
+        'copper_cu': 0.0, 
+        'cystine': 0.0, 
+        'data_type': 'no_value', 
+        'energy': 0.0, 
+        'fatty_acids_total_monounsaturated': 0.0, 
+        'fatty_acids_total_polyunsaturated': 0.0, 
+        'fatty_acids_total_saturated': 0.0, 
+        'fatty_acids_total_trans': 0.0, 
+        'fdc_id': 0, 
+        'fiber_total_dietary': 0.0, 
+        'folate_total': 0.0, 
+        'food_description': 'no_value', 
+        'fructose': 0.0, 
+        'galactose': 0.0, 
+        'glucose': 0.0, 
+        'glutamic_acid': 0.0, 
+        'glycine': 0.0, 
+        'histidine': 0.0, 
+        'ingredients': 'no_value', 
+        'iron_fe': 0.0, 
+        'isoleucine': 0.0, 
+        'lactose': 0.0, 
+        'leucine': 0.0, 
+        'lysine': 0.0, 
+        'magnesium_mg': 0.0, 
+        'maltose': 0.0, 
+        'manganese_mn': 0.0, 
+        'measure_unit_id': 0, 
+        'methionine': 0.0, 
+        'niacin': 0.0, 
+        'nutrient_amount': 0.0, 
+        'nutrient_id': 0, 
+        'nutrient_name': 'no_value', 
+        'nutrient_unit': 'no_value', 
+        'pantothenic_acid': 0.0, 
+        'phenylalanine': 0.0, 
+        'phosphorus_p': 0.0, 
+        'portion_amount': 0.0, 
+        'portion_energy': 0.0, 
+        'portion_gram_weight': 0.0, 
+        'portion_id': 0, 
+        'portion_modifier': 'no_value', 
+        'portion_unit': 'no_value', 
+        'potassium_k': 0.0, 
+        'proline': 0.0, 
+        'protein': 0.0, 
+        'retinol': 0.0, 
+        'riboflavin': 0.0, 
+        'selenium_se': 0.0, 
+        'serine': 0.0, 
+        'sodium_na': 0.0, 
+        'standardized_portion': 'no_value', 
+        'standardized_quantity': 0.0, 
+        'sucrose': 0.0, 
+        'sugars_total': 0.0, 
+        'thiamin': 0.0, 
+        'threonine': 0.0, 
+        'total_lipid_fat': 0.0, 
+        'tryptophan': 0.0, 
+        'tyrosine': 0.0, 
+        'usda_data_source': 'no_value', 
+        'valine': 0.0, 
+        'vitamin_a_rae': 0.0, 
+        'vitamin_b12': 0.0, 
+        'vitamin_b6': 0.0, 
+        'vitamin_c_total_ascorbic_acid': 0.0, 
+        'vitamin_d2_ergocalciferol': 0.0, 
+        'vitamin_d3_cholecalciferol': 0.0, 
+        'vitamin_e_alphatocopherol': 0.0, 
+        'vitamin_k_dihydrophylloquinone': 0.0, 
+        'vitamin_k_menaquinone4': 0.0, 
+        'vitamin_k_phylloquinone': 0.0, 
+        'zinc_zn': 0.0
+        }
+
+    if col in data_types:
+        df[col].fillna(data_types[col], inplace=True)
+
+    if type(data_types[col]) == float:
+        df[col] = df[col].astype('float32', errors='ignore')
+
+

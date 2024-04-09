@@ -9,10 +9,10 @@ def process_branded(
         nutrient_path = None
     ):
 
-    branded_foods = pd.read_csv(branded_food_path, low_memory=False)
-    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
-    foods = pd.read_csv(food_path, low_memory=False)
-    nutrients = pd.read_csv(nutrient_path, low_memory=False)
+    branded_foods = pd.read_csv(branded_food_path, low_memory=False, nrows=10000)
+    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False, nrows=10000)
+    foods = pd.read_csv(food_path, low_memory=False, nrows=10000)
+    nutrients = pd.read_csv(nutrient_path, low_memory=False, nrows=10000)
 
     # Drop unnecessary columns
     branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
@@ -30,28 +30,14 @@ def process_branded(
     del branded_food_path, food_nutrient_path, nutrient_path
     gc.collect()
 
-    # Set data types for all columns, and fill NA values
-    branded_foods['fdc_id'].fillna(0, inplace=True)
-    branded_foods['brand_owner'].fillna('no_value', inplace=True)
-    branded_foods['brand_name'].fillna('no_value', inplace=True)
-    branded_foods['ingredients'].fillna('no_value', inplace=True)
-    branded_foods['portion_amount'].fillna(0.0, inplace=True)
-    branded_foods['portion_unit'].fillna('no_value', inplace=True)
-    branded_foods['portion_modifier'].fillna('no_value', inplace=True)
-    branded_foods['category'].fillna('no_value', inplace=True)
+    # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
+    df_lst = [branded_foods, food_nutrients, foods, nutrients]
 
-    food_nutrients['fdc_id'].fillna(0, inplace=True)
-    food_nutrients['nutrient_id'].fillna(0, inplace=True)
-    food_nutrients['nutrient_amount'].fillna(0.0, inplace=True)
+    for df in df_lst:
+        for col in df.columns.tolist():
+            fill_na_and_define_dtype(df, col)
 
-    foods['fdc_id'].fillna(0, inplace=True)
-    foods['food_description'].fillna('no_value', inplace=True)
-
-    nutrients['nutrient_id'].fillna(0, inplace=True)
-    nutrients['nutrient_name'].fillna('no_value', inplace=True)
-    nutrients['nutrient_unit'].fillna('no_value', inplace=True)
-
-    # Merge datasets  
+    # Join datasets  
     full_foods = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')
     full_foods.drop(['nutrient_id'], axis=1, inplace=True)
     
@@ -129,12 +115,6 @@ def process_branded(
     full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
-    # # Add missing columns to stack on other data type dfs
-    # cols_to_add = ['portion_gram_weight', 'fructose', 'serine', 'glucose', 'copper_cu', 'vitamin_a_rae', 'sugars_total', 'galactose', 'betaine', 'threonine', 'glycine', 'vitamin_d3_cholecalciferol', 'cystine', 'leucine', 'vitamin_k_menaquinone4', 'valine', 'choline_total', 'lysine', 'vitamin_k_dihydrophylloquinone', 'tyrosine', 'vitamin_e_alphatocopherol', 'proline', 'tryptophan', 'phenylalanine', 'vitamin_k_phylloquinone', 'methionine', 'isoleucine', 'maltose', 'histidine', 'alanine', 'vitamin_d2_ergocalciferol', 'carotene_beta', 'glutamic_acid', 'arginine', 'retinol', 'sucrose', 'lactose']
-    # for i in cols_to_add:
-    #     full_foods[i] = 0.0
-
-
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()
     lst_col_names = format_col_names(lst_col_names)
@@ -148,19 +128,6 @@ def process_branded(
 
     # Format ingredient values using the format_ingredients function
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
-    
-
-    # full_foods = full_foods[[
-    #                         'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 
-    #                         'brand_name', 'food_description', 'ingredients', 'portion_amount', 
-    #                         'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 
-    #                         'portion_gram_weight', 'portion_energy', 'energy', 'carbohydrate_by_difference', 
-    #                         'protein', 'total_lipid_fat', 'fiber_total_dietary', 'calcium_ca', 'iron_fe', 
-    #                         'vitamin_c_total_ascorbic_acid',  'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 
-    #                         'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 'fatty_acids_total_polyunsaturated', 
-    #                         'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate_total', 'vitamin_b12', 'pantothenic_acid', 
-    #                         'phosphorus_p', 'magnesium_mg', 'potassium_k', 'zinc_zn', 'manganese_mn', 'selenium_se'
-    #                     ]]
 
     # Release memory
     gc.collect()

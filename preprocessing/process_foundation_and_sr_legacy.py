@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import gc
 from preprocessing._utils import *
@@ -39,32 +40,14 @@ def process_foundation_and_sr_legacy(
     del food_nutrient_path, nutrient_path, category_path, portion_path, measure_unit_path
     gc.collect()
 
-    # Set data types for all columns, and fill NA values
-    food_nutrients['fdc_id'].fillna(0, inplace=True)
-    food_nutrients['nutrient_id'].fillna(0, inplace=True)
-    food_nutrients['nutrient_amount'].fillna(0.0, inplace=True)
+    # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
+    df_lst = [food_nutrients, foods, nutrients, categories, portions, measure_units]
 
-    foods['fdc_id'].fillna(0, inplace=True)
-    foods['food_description'].fillna('no_value', inplace=True)
-    foods['category_id'].fillna(0, inplace=True)
+    for df in df_lst:
+        for col in df.columns.tolist():
+            fill_na_and_define_dtype(df, col)
 
-    nutrients['nutrient_id'].fillna(0, inplace=True)
-    nutrients['nutrient_name'].fillna('no_value', inplace=True)
-    nutrients['nutrient_unit'].fillna('no_value', inplace=True)
-
-    categories['category_id'].fillna(0, inplace=True)
-    categories['category'].fillna('no_value', inplace=True)
-
-    portions['portion_id'].fillna(0, inplace=True)
-    portions['fdc_id'].fillna(0, inplace=True)
-    portions['portion_amount'].fillna(0.0, inplace=True)
-    portions['measure_unit_id'].fillna(0, inplace=True)
-    portions['portion_modifier'].fillna('no_value', inplace=True)
-    portions['portion_gram_weight'].fillna(0.0, inplace=True)
-
-    measure_units['measure_unit_id'].fillna(0, inplace=True)
-    measure_units['portion_unit'].fillna('no_value', inplace=True)
-
+    # Join datasets
     foods = pd.merge(foods, categories, on='category_id', how='left')
     foods.drop(['category_id'], axis=1, inplace=True)
 
@@ -145,11 +128,6 @@ def process_foundation_and_sr_legacy(
     full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
-    # # Add missing columns to stack on other data type dfs
-    # full_foods['brand_owner'] = 'no_value'
-    # full_foods['brand_name'] = 'no_value'
-    # full_foods['ingredients'] = 'no_value'
-
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()
     lst_col_names = format_col_names(lst_col_names)
@@ -158,21 +136,6 @@ def process_foundation_and_sr_legacy(
     # Format the food_description and category values using the format_col_values function
     full_foods['food_description'] = full_foods['food_description'].apply(lambda x: format_col_values(x))
     full_foods['category'] = full_foods['category'].apply(lambda x: format_col_values(x))
-
-    # full_foods = full_foods[[
-    #                         'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-    #                         'portion_amount', 'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 'portion_gram_weight', 
-    #                         'portion_energy', 'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat', 'fiber_total_dietary', 'sugars_total', 
-    #                         'calcium_ca', 'iron_fe', 'vitamin_c_total_ascorbic_acid', 'vitamin_a_rae', 'vitamin_e_alphatocopherol', 
-    #                         'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 
-    #                         'fatty_acids_total_polyunsaturated', 'vitamin_k_phylloquinone', 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate_total', 
-    #                         'vitamin_b12', 'vitamin_d3_cholecalciferol', 'vitamin_d2_ergocalciferol', 'pantothenic_acid', 'phosphorus_p', 'magnesium_mg', 
-    #                         'potassium_k', 'zinc_zn', 'copper_cu', 'manganese_mn', 'selenium_se', 'carotene_beta', 'retinol', 'vitamin_k_dihydrophylloquinone', 
-    #                         'vitamin_k_menaquinone4', 'tryptophan', 'threonine', 'methionine', 'phenylalanine', 'tyrosine', 'valine', 'arginine', 'histidine', 
-    #                         'isoleucine', 'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 'glucose', 
-    #                         'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
-    #                     ]]
-
 
     # Release memory
     gc.collect()
