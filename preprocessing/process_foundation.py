@@ -10,23 +10,36 @@ def process_foundation(
         delete_files = True, 
     ):
 
-    print(f'Initializing processing for:\n> {urls[0]}\n')
+    print(f'\nInitializing processing for:\n> {url[0]}\n')
 
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
-        
 
+    for url in urls:
+        download_usda_csv(url, raw_dir)
 
+    # Find the directory containing the downloaded files to define foundation_dir
+    for path in os.listdir(raw_dir):
+        if 'foundation' in path:
+            foundation_dir = os.path.join(raw_dir, path)
+        if 'FoodData_Central_csv' in path:
+            all_dir = os.path.join(raw_dir, path)
+
+    if delete_files == True:
+        files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
+        delete_unnecessary_files(foundation_dir, files_to_keep)
+
+    print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
 
     # Load datasets
-    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
-    foods = pd.read_csv(food_path, low_memory=False)
-    nutrients = pd.read_csv(nutrient_path, low_memory=False)
-    categories = pd.read_csv(category_path, low_memory=False)
-    portions = pd.read_csv(portion_path, low_memory=False)
-    measure_units = pd.read_csv(measure_unit_path, low_memory=False)
+    food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)
+    foods = pd.read_csv(os.path.join(foundation_dir, 'food.csv'), low_memory=False)
+    nutrients = pd.read_csv(os.path.join(foundation_dir, 'nutrient.csv') , low_memory=False)
+    categories = pd.read_csv(os.path.join(foundation_dir, 'food_category.csv'), low_memory=False)
+    portions = pd.read_csv(os.path.join(foundation_dir, 'food_portion.csv'), low_memory=False)
+    measure_units = pd.read_csv(os.path.join(foundation_dir, 'measure_unit.csv'), low_memory=False)
 
-    # Drop unnecessary columns
+    # Drop unnecessary columns and rename
     food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
     foods.drop(columns=foods.columns.difference(['fdc_id', 'description', 'food_category_id']), inplace=True)
     nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
@@ -34,7 +47,6 @@ def process_foundation(
     portions.drop(columns=portions.columns.difference(['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']), inplace=True)
     measure_units.drop(columns=measure_units.columns.difference(['id', 'name']), inplace=True)
 
-    # Rename columns
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
     foods.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
@@ -42,8 +54,6 @@ def process_foundation(
     portions.rename(columns={'id': 'portion_id', 'amount': 'portion_amount', 'modifier': 'portion_modifier', 'gram_weight': 'portion_gram_weight'}, inplace=True)
     measure_units.rename(columns={'id': 'measure_unit_id', 'name': 'portion_unit'}, inplace=True)
 
-    # Release memory
-    del food_nutrient_path, nutrient_path, category_path, portion_path, measure_unit_path
     gc.collect()
 
     # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
@@ -72,10 +82,9 @@ def process_foundation(
     full_foods = pd.merge(foods, nutrients, on='fdc_id', how='left')
     full_foods = pd.merge(full_foods, portions, on='fdc_id', how='inner')
 
-    # Release memory
     gc.collect()
 
-    # List of nutrients consumers care about
+    # Filter for rows with relevant_nutrients that consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)', 
                         'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
                         'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
@@ -90,9 +99,8 @@ def process_foundation(
                         'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
                         'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
 
-    # Add condition to filter for rows with relevant_nutrients
     full_foods = full_foods[full_foods['nutrient_name'].isin(relevant_nutrients)]
-    full_foods = full_foods[full_foods['nutrient_unit'] != 'kJ']
+    full_foods = full_foods[full_foods['nutrient_unit'] != 'kJ'] # Drop energy when in kJ (only kcal needed)
 
     # Add new column for per gram amount for various nutrients
     full_foods['multiplier'] = 0
@@ -103,10 +111,9 @@ def process_foundation(
     full_foods['per_gram_amt'] = round(full_foods.nutrient_amount * full_foods.multiplier, 10)
     full_foods.drop(['multiplier'], axis=1, inplace=True)
 
-    # Release memory
     gc.collect()
 
-    # Aggregate rows with equal values
+    # Aggregate rows with equal values and pivot data
     full_foods = full_foods.groupby(['food_description', 'category', 'nutrient_name', 'nutrient_unit', 'portion_modifier', 'portion_unit']).mean(numeric_only=True).reset_index()
 
     full_foods = pd.pivot_table(full_foods,
@@ -120,15 +127,14 @@ def process_foundation(
                                     columns=['nutrient_name'],
                                     values='per_gram_amt').reset_index()
 
-    # Release memory
     gc.collect()
 
     # Add portion_energy column as calorie estimate
     full_foods['portion_energy'] = full_foods['Energy'] * full_foods['portion_gram_weight']
 
     # Add source columns
-    full_foods['usda_data_source'] = define_source(food_path)[0]
-    full_foods['data_type'] = define_source(food_path)[1]
+    full_foods['usda_data_source'] = define_source(foundation_dir)[0]
+    full_foods['data_type'] = define_source(foundation_dir)[1]
 
     # Add columns applying ingredient_slicer function
     full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
@@ -143,11 +149,16 @@ def process_foundation(
     full_foods['food_description'] = full_foods['food_description'].apply(lambda x: format_col_values(x))
     full_foods['category'] = full_foods['category'].apply(lambda x: format_col_values(x))
 
-    # Release memory
-    gc.collect()
-
     # Save intermediary dataframe
-    full_foods.to_parquet(os.path.join(base_dir, f'processed_foundation.parquet'))
+    full_foods.to_csv(os.path.join(base_dir, f'processed_foundation.csv'))
 
+    # Delete sr_legacy raw dir if delete_files flag is set to True
+    if delete_files == True:
+
+        for root, dirs, files in os.walk(foundation_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+            os.rmdir(foundation_dir)
 
 

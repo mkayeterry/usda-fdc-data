@@ -12,7 +12,7 @@ def get_usda_urls(USDA_URL = "https://fdc.nal.usda.gov/download-datasets.html", 
     Retrieve URLs for downloading USDA CSV files from the USDA website.
 
     Returns:
-        List[str]: A list of URLs pointing to the downloadable CSV files.
+        csv_download_links (list of str): A list of URLs pointing to the downloadable CSV files.
     """
     # Get USDA HTML content
     html_content = requests.get(USDA_URL).text
@@ -35,7 +35,7 @@ def download_usda_csv(csv_url, raw_dir):
     """
     Download and extract a USDA CSV file from the provided URL.
 
-    Parameters:
+    Args:
         csv_url (str): The URL pointing to the USDA CSV file to be downloaded.
         raw_dir (str): The directory where the downloaded and extracted file will be saved.
 
@@ -46,7 +46,7 @@ def download_usda_csv(csv_url, raw_dir):
         """
         Download a file from a URL and save it to the specified path.
 
-        Parameters:
+        Args:
             url (str): The URL of the file to be downloaded.
             save_path (str): The path where the downloaded file will be saved.
             chunk_size (int): The size of each download chunk (default is 128 bytes).
@@ -63,7 +63,7 @@ def download_usda_csv(csv_url, raw_dir):
     filename = os.path.basename(csv_url)
     filepath = os.path.join(raw_dir, filename)
 
-    print(f"Downloading file paths to:\n> {filepath}\n")
+    print(f'Downloading file paths to:\n> {filepath}\n')
 
     download_url(csv_url, filepath)
 
@@ -72,6 +72,26 @@ def download_usda_csv(csv_url, raw_dir):
 
     # Delete the zip file
     os.remove(filepath)
+
+
+
+def delete_unnecessary_files(dir, files_to_keep):
+    """
+    Delete unnecessary files from a directory, keeping only specified files.
+
+    Args:
+        dir_path (str): The path to the directory containing the files.
+        files_to_keep (list of str): A list of filenames to keep in the directory.
+
+    Returns:
+        None
+    """
+    for root, dirs, files in os.walk(dir):
+        for file in files:
+            if file not in files_to_keep:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+
 
 
 
@@ -86,7 +106,7 @@ def format_col_names(col_names):
         col_names (list): A list of strings representing column names.
         
     Returns:
-        list: A list of formatted column names.
+        formatted_names (list): A list of formatted column names.
     """
     formatted_names = []
     
@@ -110,10 +130,10 @@ def format_col_values(col_value):
     Format the given values by removing commas, parenthesis, and converting to lowercase.
 
     Args:
-    - col_value (str): The column value to format.
+        col_value (str): The column value to format.
 
     Returns:
-    - formatted_value (str): The formatted column value.
+        formatted_value (str): The formatted column value.
     """
     formatted_value = col_value.replace(',', '').replace('(', '').replace(')', '').lower()
 
@@ -135,7 +155,7 @@ def format_ingredients(ingredients):
         ingredients (str): The input string containing ingredients information.
         
     Returns:
-        list: A list of formatted ingredients.
+        formatted_ingredients (list): A list of formatted ingredients.
     """
 
     # Matches phrases like "contains less than NUMBER %" or "contains less than NUMBER % of:"
@@ -172,7 +192,7 @@ def define_source(path):
         path (str): The file path from which to extract the data source type.
 
     Returns:
-        tuple: A tuple containing the USDA data source and the corresponding data type.
+        usda_data_source, data_type (tuple): A tuple containing the USDA data source and the corresponding data type.
     """
     data_type = 'unspecified'
 
@@ -186,7 +206,7 @@ def define_source(path):
         data_type = 'branded'
 
     split_path = path.split('/')
-    usda_data_source = split_path[-2] if len(split_path) > 2 else 'FoodData_Central_csv'
+    usda_data_source = split_path[-1] if len(split_path) > 2 else 'FoodData_Central_csv'
 
     return (usda_data_source, data_type)
 
@@ -196,11 +216,11 @@ def apply_ingredient_slicer(entry):
     """
     Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
 
-    Parameters:
+    Args:
         entry (str): The row entry to be processed.
 
     Returns:
-        tuple: A tuple containing the quantity and standardized unit extracted from the portion modifier.
+        selected_data (dict): A dictionary containing the quantity and standardized unit extracted from the portion modifier.
     """
     try:
         res = ingredient_slicer.IngredientSlicer(entry).to_json()
@@ -227,9 +247,12 @@ def fill_na_and_define_dtype(df, col):
     based on the data types defined in the 'data_types' dictionary. Also, convert 
     the data type of the column to float32 if it matches the float type.
 
-    Parameters:
+    Args:
         df (pandas.DataFrame): The DataFrame to be processed.
         col (str): The column name to be processed.
+
+    Returns:
+        None
     """
     data_types = {
         'alanine': 0.0, 

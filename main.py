@@ -43,9 +43,19 @@ if not os.path.exists(BASE_DIR):
     print(f'Directory created:\n> {BASE_DIR}\n')
 
 
-
-
+# Gather and process data
 usda_urls = get_usda_urls()
+
+# Testing
+import os
+from preprocessing.process_foundation import process_foundation
+from preprocessing.process_srlegacy import process_srlegacy
+from preprocessing.process_branded import process_branded
+
+BASE_DIR = 'fdc_data'
+RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
+delete_files = True
+usda_urls = ['https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2023-10-26.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_branded_food_csv_2023-10-26.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_csv_2023-10-26.zip']
 
 foundation_urls = [url for url in usda_urls if 'foundation' in url or 'FoodData_Central_csv' in url]
 srlegacy_url = [url for url in usda_urls if 'sr_legacy' in url][0]
@@ -54,6 +64,8 @@ branded_url = [url for url in usda_urls if 'branded' in url][0]
 process_foundation(foundation_urls, BASE_DIR, RAW_DIR, delete_files)
 process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, delete_files)
 process_branded(branded_url, BASE_DIR, RAW_DIR, delete_files)
+
+
 
 
 
