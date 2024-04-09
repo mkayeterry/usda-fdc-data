@@ -3,14 +3,22 @@ import pandas as pd
 import gc
 from preprocessing._utils import *
 
-def process_foundation_and_sr_legacy(
-        food_nutrient_path = None,
-        food_path = None,
-        nutrient_path = None, 
-        category_path = None, 
-        portion_path = None, 
-        measure_unit_path = None
+def process_srlegacy(
+        url = None, 
+        base_dir = None, 
+        raw_dir = None, 
+        delete_files = True, 
     ):
+
+    print(f'Initializing processing for:\n> {url}\n')
+
+    if not os.path.exists(raw_dir):
+        os.makedirs(raw_dir)
+
+    download_usda_csv(url, raw_dir)
+
+
+
 
     # Load datasets
     food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False)
@@ -140,6 +148,8 @@ def process_foundation_and_sr_legacy(
     # Release memory
     gc.collect()
 
-    return full_foods
+    # Save intermediary dataframe
+    full_foods.to_parquet(os.path.join(base_dir, f'processed_srlegacy.parquet'))
+
 
 

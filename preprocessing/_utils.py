@@ -1,5 +1,77 @@
+import requests
+from bs4 import BeautifulSoup
+import os
+import zipfile
 import re
 import ingredient_slicer
+
+
+
+def get_usda_urls(USDA_URL = "https://fdc.nal.usda.gov/download-datasets.html", URL_PREFIX = "https://fdc.nal.usda.gov"):
+    """
+    Retrieve URLs for downloading USDA CSV files from the USDA website.
+
+    Returns:
+        List[str]: A list of URLs pointing to the downloadable CSV files.
+    """
+    # Get USDA HTML content
+    html_content = requests.get(USDA_URL).text
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Find table with the H2 tag "Latest Downloads" above it
+    latest_downloads_table = soup.find('h2', text='Latest Downloads').find_next('table')
+
+    # Find all <a> tags in the table
+    download_a_tags = latest_downloads_table.find_all('a', href=True)
+
+    # Extract the href attribute from each <a> tag
+    csv_download_links = [URL_PREFIX + link['href'] for link in download_a_tags if 'csv' in link['href'] and "survey_food" not in link["href"]]
+
+    return csv_download_links
+
+
+
+def download_usda_csv(csv_url, raw_dir):
+    """
+    Download and extract a USDA CSV file from the provided URL.
+
+    Parameters:
+        csv_url (str): The URL pointing to the USDA CSV file to be downloaded.
+        raw_dir (str): The directory where the downloaded and extracted file will be saved.
+
+    Returns:
+        None
+    """
+    def download_url(url, save_path, chunk_size=128):
+        """
+        Download a file from a URL and save it to the specified path.
+
+        Parameters:
+            url (str): The URL of the file to be downloaded.
+            save_path (str): The path where the downloaded file will be saved.
+            chunk_size (int): The size of each download chunk (default is 128 bytes).
+
+        Returns:
+            None
+        """
+        r = requests.get(url, stream=True)
+        with open(save_path, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=chunk_size):
+                fd.write(chunk)
+
+    # Download the csv file
+    filename = os.path.basename(csv_url)
+    filepath = os.path.join(raw_dir, filename)
+
+    print(f"Downloading file paths to:\n> {filepath}\n")
+
+    download_url(csv_url, filepath)
+
+    with zipfile.ZipFile(filepath, 'r') as zip:
+        zip.extractall(raw_dir)
+
+    # Delete the zip file
+    os.remove(filepath)
 
 
 

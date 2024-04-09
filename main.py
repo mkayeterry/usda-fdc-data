@@ -2,8 +2,10 @@ import argparse
 import os
 import pandas as pd
 
-from download_datasets import download_usda_data
-from preprocessing.process_foundation_and_sr_legacy import process_foundation_and_sr_legacy
+from preprocessing._utils import get_usda_urls
+
+from preprocessing.process_foundation import process_foundation
+from preprocessing.process_srlegacy import process_srlegacy
 from preprocessing.process_branded import process_branded
 
 
@@ -24,31 +26,43 @@ print(f'\nDelete files flag set to:')
 
 if delete_files == True:
     print(f'> {delete_files}. Raw and individual files will be deleted after processing.\n')
+
 if not delete_files == False:
     print(f'> {delete_files}. Raw and individual files will remain after processing.\n')
 
 
 # Define directories
 BASE_DIR = args.base_dir
-OUTPUT_DIR = os.path.join(BASE_DIR, 'FoodData_Central_processed')
 RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
-
 print(f'Base directory set to:\n> {BASE_DIR}\n')
 
 
-# Ensure directories exist
+# Ensure base directory exists
 if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
     print(f'Directory created:\n> {BASE_DIR}\n')
 
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
 
-if not os.path.exists(RAW_DIR):
-    os.makedirs(RAW_DIR)
 
-    # Download USDA datasets only if they do not already exist
-    download_usda_data(RAW_DIR)
+
+usda_urls = get_usda_urls()
+
+foundation_urls = [url for url in usda_urls if 'foundation' in url or 'FoodData_Central_csv' in url]
+srlegacy_url = [url for url in usda_urls if 'sr_legacy' in url][0]
+branded_url = [url for url in usda_urls if 'branded' in url][0]
+
+process_foundation(foundation_urls, BASE_DIR, RAW_DIR, delete_files)
+process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, delete_files)
+process_branded(branded_url, BASE_DIR, RAW_DIR, delete_files)
+
+
+
+
+
+
+
+
+
 
 
 # Define specific data type paths
@@ -86,27 +100,24 @@ BF_FOOD = os.path.join(BRANDED_FOOD_DIR, 'food.csv')
 BF_NUTRIENT = os.path.join(BRANDED_FOOD_DIR, 'nutrient.csv')
 
 
-# Process data, tracking processing time per file
+# Process data
 try:
     print(f'Initializing processing for:\n> {FOUNDATION_FOOD_DIR}\n')
-    processed_foundation_food = process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
-    processed_foundation_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_foundation_food.parquet'))
+    process_foundation_and_sr_legacy(FF_FOOD_NUTRIENT, FF_FOOD, FF_NUTRIENT, FF_CATEGORY, FF_PORTION, FF_MEASURE_UNIT)
 except Exception as e:
     print(f'Error occurred while processing files in {FOUNDATION_FOOD_DIR}\n> {e}\n')
 
 
 try:
     print(f'Initializing processing for:\n> {SR_LEGACY_FOOD_DIR}\n')
-    processed_legacy_food = process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
-    processed_legacy_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_legacy_food.parquet'))
+    process_foundation_and_sr_legacy(SR_FOOD_NUTRIENT, SR_FOOD, SR_NUTRIENT, SR_CATEGORY, SR_PORTION, SR_MEASURE_UNIT)
 except Exception as e:
     print(f'Error occurred while processing files in {SR_LEGACY_FOOD_DIR}\n> {e}\n')
 
 
 try:
     print(f'Initializing processing for:\n> {BRANDED_FOOD_DIR}\n')
-    processed_branded_food = process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
-    processed_branded_food.to_parquet(os.path.join(OUTPUT_DIR, 'processed_branded_food.parquet'))
+    process_branded(BF_BRANDED_FOOD, BF_FOOD_NUTRIENT, BF_FOOD, BF_NUTRIENT)
 except Exception as e:
     print(f'Error occurred while processing files in {BRANDED_FOOD_DIR}\n> {e}\n')
 
@@ -136,30 +147,30 @@ for col in stacked_data.columns.tolist():
 stacked_data.to_parquet(os.path.join(BASE_DIR, 'processed_usda_data.parquet'), index=False)
 
 
-if delete_files == True:
+# if delete_files == True:
     
-    # Remove raw data files
-    for root, dirs, files in os.walk(RAW_DIR):
-        for file in files:
-            file_path = os.path.join(root, file)
-            os.remove(file_path)
+#     # Remove raw data files
+#     for root, dirs, files in os.walk(RAW_DIR):
+#         for file in files:
+#             file_path = os.path.join(root, file)
+#             os.remove(file_path)
 
-    # Remove all directories (in reverse order)
-    for root, dirs, files in os.walk(RAW_DIR, topdown=False):
-        for dir in dirs:
-            dir_path = os.path.join(root, dir)
-            os.rmdir(dir_path)
+#     # Remove all directories (in reverse order)
+#     for root, dirs, files in os.walk(RAW_DIR, topdown=False):
+#         for dir in dirs:
+#             dir_path = os.path.join(root, dir)
+#             os.rmdir(dir_path)
 
-    os.rmdir(RAW_DIR)
+#     os.rmdir(RAW_DIR)
 
 
-    # Remove individual processed data files and folder
-    for root, dirs, files in os.walk(OUTPUT_DIR):
-        for file in files:
-            file_path = os.path.join(root, file)
-            os.remove(file_path)
+#     # Remove individual processed data files and folder
+#     for root, dirs, files in os.walk(OUTPUT_DIR):
+#         for file in files:
+#             file_path = os.path.join(root, file)
+#             os.remove(file_path)
 
-    os.rmdir(OUTPUT_DIR)
+#     os.rmdir(OUTPUT_DIR)
 
 
 print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.parquet") is now available in:\n> {BASE_DIR}\n')
