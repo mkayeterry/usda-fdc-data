@@ -241,7 +241,7 @@ def apply_ingredient_slicer(entry):
 
 
 
-def fill_na_and_define_dtype(df, col):
+def fillna_and_define_dtype(df, col):
     """
     Fill NaN values in the specified column of the DataFrame with predefined values 
     based on the data types defined in the 'data_types' dictionary. Also, convert 

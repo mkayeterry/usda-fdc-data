@@ -166,4 +166,6 @@ fdc_data/*
 .DS_Store
 preprocessing/.DS_Store/*
 
-preprocessing/process_graveyard.py
+
+processed_usda_data.csv
+processed_usda_data.parquet
