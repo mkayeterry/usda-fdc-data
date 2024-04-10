@@ -153,7 +153,7 @@ def process_foundation(
     full_foods['category'] = full_foods['category'].apply(lambda x: format_col_values(x))
 
     # Save intermediary dataframe
-    full_foods.to_csv(os.path.join(base_dir, f'processed_foundation.csv'))
+    full_foods.to_parquet(os.path.join(base_dir, f'processed_foundation.parquet'))
 
     # Delete sr_legacy raw dir if delete_files flag is set to True
     if delete_files == True:

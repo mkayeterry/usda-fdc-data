@@ -9,30 +9,40 @@ def process_branded(
         delete_files = True, 
     ):
 
-    print(f'Initializing processing for:\n> {url}\n')
+    print(f'\nInitializing processing for:\n> {url}\n')
 
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
 
-    branded_foods = pd.read_csv(branded_food_path, low_memory=False, nrows=10000)
-    food_nutrients = pd.read_csv(food_nutrient_path, low_memory=False, nrows=10000)
-    foods = pd.read_csv(food_path, low_memory=False, nrows=10000)
-    nutrients = pd.read_csv(nutrient_path, low_memory=False, nrows=10000)
+    download_usda_csv(url, raw_dir)
 
-    # Drop unnecessary columns
+    # Find the directory containing the downloaded files to define branded_dir
+    for path in os.listdir(raw_dir):
+        if 'branded' in path:
+            branded_dir = os.path.join(raw_dir, path)
+
+    if delete_files == True:
+        files_to_keep = ['branded_food.csv', 'food_nutrient.csv', 'food.csv', 'nutrient.csv']
+        delete_unnecessary_files(branded_dir, files_to_keep)
+
+    print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
+
+    branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'), low_memory=False, nrows=10000)
+    food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), low_memory=False, nrows=10000)
+    foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), low_memory=False, nrows=10000)
+    nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), low_memory=False, nrows=10000)
+
+    # Drop unnecessary columns an rename
     branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
     food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
     foods.drop(columns=foods.columns.difference(['fdc_id', 'description']), inplace=True)
     nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
 
-    # Perform inplace renaming of columns
     branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
     foods.rename(columns={'description': 'food_description'}, inplace=True)
     nutrients.rename(columns={'id': 'nutrient_id', 'name': 'nutrient_name', 'unit_name': 'nutrient_unit'}, inplace=True)
 
-    # Release memory
-    del branded_food_path, food_nutrient_path, nutrient_path
     gc.collect()
 
     # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
@@ -49,10 +59,9 @@ def process_branded(
     full_foods = pd.merge(foods, full_foods, on='fdc_id', how='left')
     full_foods = pd.merge(full_foods, branded_foods, on='fdc_id', how='left')
 
-    # Release memory
     gc.collect()
 
-    # List of nutrients consumers care about
+    # Filter for rows with relevant_nutrients that consumers care about
     relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)', 
                         'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
                         'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
@@ -67,7 +76,6 @@ def process_branded(
                         'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
                         'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
 
-    # Add condition to filter for rows with relevant_nutrients
     full_foods = full_foods[full_foods['nutrient_name'].isin(relevant_nutrients)]
     full_foods = full_foods[full_foods['nutrient_unit'] != 'kJ']
 
@@ -83,10 +91,9 @@ def process_branded(
     full_foods.drop(['nutrient_unit'], axis=1, inplace=True)
     full_foods.drop(['nutrient_amount'], axis=1, inplace=True)
 
-    # Release memory
     gc.collect()
 
-
+    # Aggregate rows with equal values and pivot data
     full_foods = full_foods.groupby(['food_description', 'nutrient_name', 'portion_amount', 'portion_unit']).first()
 
     full_foods['brand_name'].fillna('no_value', inplace=True)
@@ -105,8 +112,6 @@ def process_branded(
                                 columns='nutrient_name', 
                                 values='per_gram_amt').reset_index()
 
-
-    # Release memory
     gc.collect()
 
     # Add portion_energy column as calorie estimate
@@ -134,10 +139,15 @@ def process_branded(
     # Format ingredient values using the format_ingredients function
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
 
-    # Release memory
-    gc.collect()
-
     # Save intermediary dataframe
     full_foods.to_parquet(os.path.join(base_dir, f'processed_branded.parquet'))
 
+    # Delete sr_legacy raw dir if delete_files flag is set to True
+    if delete_files == True:
+
+        for root, dirs, files in os.walk(branded_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+            os.rmdir(branded_dir)
 
