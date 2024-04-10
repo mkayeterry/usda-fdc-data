@@ -10,7 +10,7 @@ def process_foundation(
         delete_files = True, 
     ):
 
-    print(f'\nInitializing processing for:\n> {url[0]}\n')
+    print(f'\nInitializing processing for:\n> {urls[0]}\n')
 
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
@@ -59,12 +59,12 @@ def process_foundation(
 
     gc.collect()
 
-    # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
+    # Set data types for all columns, and fill NA values using fillna_and_define_dtype function
     df_lst = [food_nutrients, foods, nutrients, categories, portions, measure_units]
 
     for df in df_lst:
         for col in df.columns.tolist():
-            fill_na_and_define_dtype(df, col)
+            fillna_and_define_dtype(df, col)
 
     # Join datasets
     foods = pd.merge(foods, categories, on='category_id', how='left')

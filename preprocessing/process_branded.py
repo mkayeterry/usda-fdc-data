@@ -45,12 +45,12 @@ def process_branded(
 
     gc.collect()
 
-    # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
+    # Set data types for all columns, and fill NA values using fillna_and_define_dtype function
     df_lst = [branded_foods, food_nutrients, foods, nutrients]
 
     for df in df_lst:
         for col in df.columns.tolist():
-            fill_na_and_define_dtype(df, col)
+            fillna_and_define_dtype(df, col)
 
     # Join datasets  
     full_foods = pd.merge(food_nutrients, nutrients, on='nutrient_id', how='left')

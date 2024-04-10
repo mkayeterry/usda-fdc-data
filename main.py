@@ -12,12 +12,13 @@ from preprocessing.process_branded import process_branded
 
 # If no argument is given
 DEFAULT_BASE_DIR = 'fdc_data'
+delete_files = True
 
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
 parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='specify base directory (default: fdc_data)')
-parser.add_argument('--delete_files', default=True, help='delete raw/indv files, leaving only processed data (default: True)')
+parser.add_argument('--delete_files', default=delete_files, help='delete raw/indv files, leaving only processed data (default: True)')
 args = parser.parse_args()
 
 

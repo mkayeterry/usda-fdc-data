@@ -53,12 +53,12 @@ def process_srlegacy(
 
     gc.collect()
 
-    # Set data types for all columns, and fill NA values using fill_na_and_define_dtype function
+    # Set data types for all columns, and fill NA values using fillna_and_define_dtype function
     df_lst = [food_nutrients, foods, nutrients, categories, portions, measure_units]
 
     for df in df_lst:
         for col in df.columns.tolist():
-            fill_na_and_define_dtype(df, col)
+            fillna_and_define_dtype(df, col)
 
     # Join datasets
     foods = pd.merge(foods, categories, on='category_id', how='left')
