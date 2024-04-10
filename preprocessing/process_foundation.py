@@ -7,7 +7,7 @@ def process_foundation(
         urls = None, 
         base_dir = None, 
         raw_dir = None, 
-        delete_files = True, 
+        keep_files = False, 
     ):
 
     if not os.path.exists(raw_dir):

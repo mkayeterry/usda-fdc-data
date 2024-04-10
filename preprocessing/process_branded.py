@@ -6,7 +6,7 @@ def process_branded(
         url = None, 
         base_dir = None, 
         raw_dir = None, 
-    keep_files = True, 
+        keep_files = False, 
     ):
 
     if not os.path.exists(raw_dir):

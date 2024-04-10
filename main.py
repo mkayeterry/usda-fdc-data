@@ -46,7 +46,9 @@ process_branded(branded_url, BASE_DIR, RAW_DIR, keep_files)
 print(f'Initializing stacking of individually processed data:')
 for root, dirs, files in os.walk(BASE_DIR):
     for file in files:
-        print(f'> {file}')
+        if '.parquet' in file:
+            print(f'> {file}')
+            
 # Stack processed data, reorder columns, and save csv
 stacked_data = pd.concat([
     pd.read_parquet(os.path.join(BASE_DIR, 'processed_foundation.parquet')),
