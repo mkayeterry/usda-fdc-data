@@ -20,7 +20,8 @@ def process_srlegacy(
         if 'sr_legacy' in path:
             srlegacy_dir = os.path.join(raw_dir, path)
 
-    if delete_files == 'true':
+    # Delete unnecessary files if keep_files flag is not specified
+    if not keep_files:
         files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(srlegacy_dir, files_to_keep)
 
@@ -147,8 +148,8 @@ def process_srlegacy(
     # Save intermediary dataframe
     full_foods.to_parquet(os.path.join(base_dir, f'processed_srlegacy.parquet'))
 
-    # Delete raw downloads if delete_files flag is set to True
-    if delete_files == 'true':
+    # Delete remaining files if keep_files flag is not specified
+    if not keep_files:
         import shutil
 
         for root, dirs, files in os.walk(srlegacy_dir):

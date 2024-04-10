@@ -13,18 +13,13 @@ from preprocessing.process_branded import process_branded
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
 parser.add_argument('--base_dir', default='fdc_data', help='specify base directory (default: fdc_data)')
-parser.add_argument('--delete_files', default='True', type=str, help='delete raw/indv files, leaving only processed data (default: True)')
+parser.add_argument('--keep_files', action='store_true', help='keep raw/indv files, as well as processed data')
 args = parser.parse_args()
 
 
-# Define delete_files flag, default to True if no argument is given
-delete_files = args.delete_files.lower()
-print(f'\nDelete files flag set to:')
-
-if delete_files == 'true':
-    print(f'> True. Raw and individual files will be deleted after processing.\n')
-else:
-    print(f'> False. Raw and individual files will remain after processing.\n')
+keep_files = args.keep_files
+if keep_files:
+    print(f'\nkeep_files flag specified:\n> Raw and individual files will be kept after processing.\n')
 
 
 # Define directories and ensure they exist (raw_dir existence will be checked in individual processing files)
@@ -44,9 +39,9 @@ foundation_urls = [url for url in usda_urls if 'foundation' in url or 'FoodData_
 srlegacy_url = [url for url in usda_urls if 'sr_legacy' in url][0]
 branded_url = [url for url in usda_urls if 'branded' in url][0]
 
-process_foundation(foundation_urls, BASE_DIR, RAW_DIR, delete_files)
-process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, delete_files)
-process_branded(branded_url, BASE_DIR, RAW_DIR, delete_files)
+process_foundation(foundation_urls, BASE_DIR, RAW_DIR, keep_files)
+process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, keep_files)
+process_branded(branded_url, BASE_DIR, RAW_DIR, keep_files)
 
 print(f'Initializing stacking of individually processed data:')
 for root, dirs, files in os.walk(BASE_DIR):
@@ -80,11 +75,11 @@ for col in stacked_data.columns.tolist():
 stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
 
 
-# Delete raw dir/individual processed files if delete_files flag is set to True
+# Delete raw dir/individual processed files if keep_files flag is not specified
 for root, dirs, files in os.walk(BASE_DIR):
     for file in files:
 
-        if delete_files == 'true':
+        if not keep_files:
 
             if 'foundation' in file:
                 file_path = os.path.join(root, file)
