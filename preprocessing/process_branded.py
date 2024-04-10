@@ -9,8 +9,6 @@ def process_branded(
         delete_files = True, 
     ):
 
-    print(f'Initializing processing for:\n> {url}\n')
-
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
 
@@ -25,7 +23,7 @@ def process_branded(
         files_to_keep = ['branded_food.csv', 'food_nutrient.csv', 'food.csv', 'nutrient.csv']
         delete_unnecessary_files(branded_dir, files_to_keep)
 
-    print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
+    print(f'Initializing processing for:\n> {os.path.basename(url)[:-4]}\n')
 
     branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'), low_memory=False, nrows=10000)
     food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), low_memory=False, nrows=10000)
@@ -118,8 +116,8 @@ def process_branded(
     full_foods['portion_energy'] = full_foods['Energy'] * full_foods['portion_amount']
 
     # Add source columns
-    full_foods['usda_data_source'] = define_source(food_path)[0]
-    full_foods['data_type'] = define_source(food_path)[1]
+    full_foods['usda_data_source'] = define_source(branded_dir)[0]
+    full_foods['data_type'] = define_source(branded_dir)[1]
 
     # Add columns applying ingredient_slicer function
     full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])

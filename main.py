@@ -48,14 +48,16 @@ process_foundation(foundation_urls, BASE_DIR, RAW_DIR, delete_files)
 process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, delete_files)
 process_branded(branded_url, BASE_DIR, RAW_DIR, delete_files)
 
-print(f'Initializing stacking of individually processed data for:\n> foundation, sr legacy, and branded foods\n')
+print(f'Initializing stacking of individually processed data:')
+for root, dirs, files in os.walk(BASE_DIR):
+    for file in files:
+        print(f'> {file}')
 # Stack processed data, reorder columns, and save csv
 stacked_data = pd.concat([
-                    pd.read_parquet(processed_foundation.parquet, low_memory=False), 
-                    pd.read_parquet(processed_srlegacy.parquet, low_memory=False), 
-                    pd.read_parquet(processed_branded.parquet, low_memory=False)
-                ])
-
+    pd.read_parquet(os.path.join(BASE_DIR, 'processed_foundation.parquet')),
+    pd.read_parquet(os.path.join(BASE_DIR, 'processed_srlegacy.parquet')),
+    pd.read_parquet(os.path.join(BASE_DIR, 'processed_branded.parquet'))
+])
 stacked_data.reset_index(drop=True, inplace=True)
 
 stacked_data = stacked_data[[
@@ -79,10 +81,7 @@ stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=Fal
 
 
 # Delete raw dir/individual processed files if delete_files flag is set to True
-if delete_files:
-    os.rmdir(RAW_DIR)
-
-for root, dirs, files in os.walk(base_dir):
+for root, dirs, files in os.walk(BASE_DIR):
     for file in files:
 
         if delete_files:
@@ -97,6 +96,5 @@ for root, dirs, files in os.walk(base_dir):
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
 
-        if 'processed_usda_data' in file:
-            file_path = os.path.join(root, file)
-            print(f'Processing of USDA FDC data is complete. The processed data file ({file}) is now available in:\n> {file_path}\n')
+
+    print(f'\nProcessing of USDA FDC data is complete. The processed data file ({file}) is now available in:\n> {root}\n')

@@ -10,8 +10,6 @@ def process_foundation(
         delete_files = True, 
     ):
 
-    print(f'Initializing processing for:\n> {urls[0]}\n> {urls[1]}\n')
-
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
 
@@ -32,7 +30,7 @@ def process_foundation(
         files_to_keep = ['food_category.csv']
         delete_unnecessary_files(all_dir, files_to_keep)
 
-    print(f'Processing:\n> {os.path.basename(urls[0])[:-4]}\n')
+    print(f'Initializing processing for:\n> {os.path.basename(urls[0])[:-4]}\n> {os.path.basename(urls[1])[:-4]}\n')
 
     # Load datasets
     food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)

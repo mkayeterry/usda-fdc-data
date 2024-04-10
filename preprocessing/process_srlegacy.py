@@ -10,8 +10,6 @@ def process_srlegacy(
         delete_files = True, 
     ):
 
-    print(f'Initializing processing for:\n> {url}\n')
-
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
 
@@ -26,7 +24,7 @@ def process_srlegacy(
         files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(srlegacy_dir, files_to_keep)
 
-    print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
+    print(f'Initializing processing for:\n> {os.path.basename(url)[:-4]}\n')
 
     # Load datasets
     food_nutrients = pd.read_csv(os.path.join(srlegacy_dir, 'food_nutrient.csv'), low_memory=False)
