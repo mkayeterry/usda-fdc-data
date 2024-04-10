@@ -19,7 +19,7 @@ def process_branded(
         if 'branded' in path:
             branded_dir = os.path.join(raw_dir, path)
 
-    if delete_files:
+    if delete_files == 'true':
         files_to_keep = ['branded_food.csv', 'food_nutrient.csv', 'food.csv', 'nutrient.csv']
         delete_unnecessary_files(branded_dir, files_to_keep)
 
@@ -141,7 +141,7 @@ def process_branded(
     full_foods.to_parquet(os.path.join(base_dir, f'processed_branded.parquet'))
 
     # Delete raw downloads if delete_files flag is set to True
-    if delete_files:
+    if delete_files == 'true':
         import shutil
 
         for root, dirs, files in os.walk(branded_dir):
