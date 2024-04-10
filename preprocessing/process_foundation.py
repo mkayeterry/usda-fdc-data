@@ -10,7 +10,7 @@ def process_foundation(
         delete_files = True, 
     ):
 
-    print(f'\nInitializing processing for:\n> {urls[0]}\n')
+    print(f'Initializing processing for:\n> {urls[0]}\n> {urls[1]}\n')
 
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
@@ -25,14 +25,14 @@ def process_foundation(
         if 'FoodData_Central_csv' in path:
             all_dir = os.path.join(raw_dir, path)
 
-    if delete_files == True:
+    if delete_files:
         files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(foundation_dir, files_to_keep)
 
         files_to_keep = ['food_category.csv']
         delete_unnecessary_files(all_dir, files_to_keep)
 
-    print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
+    print(f'Processing:\n> {os.path.basename(urls[0])[:-4]}\n')
 
     # Load datasets
     food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)
@@ -155,19 +155,26 @@ def process_foundation(
     # Save intermediary dataframe
     full_foods.to_parquet(os.path.join(base_dir, f'processed_foundation.parquet'))
 
-    # Delete sr_legacy raw dir if delete_files flag is set to True
-    if delete_files == True:
-
-        for root, dirs, files in os.walk(foundation_dir):
-            for file in files:
-                file_path = os.path.join(root, file)
-                os.remove(file_path)
-            os.rmdir(foundation_dir)
+    # Delete raw downloads if delete_files flag is set to True
+    if delete_files:
+        import shutil
 
         for root, dirs, files in os.walk(all_dir):
             for file in files:
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
-            os.rmdir(all_dir)
 
+        try:
+            os.removedirs(all_dir)
+        except OSError:
+            shutil.rmtree(all_dir)
 
+        for root, dirs, files in os.walk(foundation_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+
+        try:
+            os.removedirs(foundation_dir)
+        except OSError:
+            shutil.rmtree(foundation_dir)

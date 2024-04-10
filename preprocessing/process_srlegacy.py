@@ -10,7 +10,7 @@ def process_srlegacy(
         delete_files = True, 
     ):
 
-    print(f'\nInitializing processing for:\n> {url}\n')
+    print(f'Initializing processing for:\n> {url}\n')
 
     if not os.path.exists(raw_dir):
         os.makedirs(raw_dir)
@@ -22,7 +22,7 @@ def process_srlegacy(
         if 'sr_legacy' in path:
             srlegacy_dir = os.path.join(raw_dir, path)
 
-    if delete_files == True:
+    if delete_files:
         files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(srlegacy_dir, files_to_keep)
 
@@ -149,14 +149,19 @@ def process_srlegacy(
     # Save intermediary dataframe
     full_foods.to_parquet(os.path.join(base_dir, f'processed_srlegacy.parquet'))
 
-    # Delete sr_legacy raw dir if delete_files flag is set to True
-    if delete_files == True:
+    # Delete raw downloads if delete_files flag is set to True
+    if delete_files:
+        import shutil
 
         for root, dirs, files in os.walk(srlegacy_dir):
             for file in files:
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
-            os.rmdir(srlegacy_dir)
+
+        try:
+            os.removedirs(srlegacy_dir)
+        except OSError:
+            shutil.rmtree(srlegacy_dir)
 
 
 

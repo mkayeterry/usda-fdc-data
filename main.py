@@ -10,15 +10,10 @@ from preprocessing.process_srlegacy import process_srlegacy
 from preprocessing.process_branded import process_branded
 
 
-# If no argument is given
-DEFAULT_BASE_DIR = 'fdc_data'
-delete_files = True
-
-
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
-parser.add_argument('--base_dir', default=DEFAULT_BASE_DIR, help='specify base directory (default: fdc_data)')
-parser.add_argument('--delete_files', default=delete_files, help='delete raw/indv files, leaving only processed data (default: True)')
+parser.add_argument('--base_dir', default='fdc_data', help='specify base directory (default: fdc_data)')
+parser.add_argument('--delete_files', default=True, type=bool, help='delete raw/indv files, leaving only processed data (default: True)')
 args = parser.parse_args()
 
 
@@ -26,10 +21,9 @@ args = parser.parse_args()
 delete_files = args.delete_files
 print(f'\nDelete files flag set to:')
 
-if delete_files == True:
+if delete_files:
     print(f'> {delete_files}. Raw and individual files will be deleted after processing.\n')
-
-if not delete_files == False:
+else:
     print(f'> {delete_files}. Raw and individual files will remain after processing.\n')
 
 
@@ -85,13 +79,13 @@ stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=Fal
 
 
 # Delete raw dir/individual processed files if delete_files flag is set to True
-if delete_files == True:
+if delete_files:
     os.rmdir(RAW_DIR)
 
 for root, dirs, files in os.walk(base_dir):
     for file in files:
 
-        if delete_files == True:
+        if delete_files:
 
             if 'foundation' in file:
                 file_path = os.path.join(root, file)
