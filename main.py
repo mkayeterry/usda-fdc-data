@@ -184,5 +184,8 @@ stacked_data.to_parquet(os.path.join(BASE_DIR, 'processed_usda_data.parquet'), i
 
 #     os.rmdir(OUTPUT_DIR)
 
-
-print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.parquet") is now available in:\n> {BASE_DIR}\n')
+for root, dirs, files in os.walk(base_dir):
+    for file in files:
+        if 'processed_usda_data' in file:
+            file_path = os.path.join(root, file)
+            print(f'Processing of USDA FDC data is complete. The processed data file ("processed_usda_data.parquet") is now available in:\n> {file_path}\n')

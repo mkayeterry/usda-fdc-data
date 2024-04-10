@@ -26,8 +26,11 @@ def process_foundation(
             all_dir = os.path.join(raw_dir, path)
 
     if delete_files == True:
-        files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
+        files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(foundation_dir, files_to_keep)
+
+        files_to_keep = ['food_category.csv']
+        delete_unnecessary_files(all_dir, files_to_keep)
 
     print(f'Processing:\n> {os.path.basename(url)[:-4]}\n')
 
@@ -35,7 +38,7 @@ def process_foundation(
     food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)
     foods = pd.read_csv(os.path.join(foundation_dir, 'food.csv'), low_memory=False)
     nutrients = pd.read_csv(os.path.join(foundation_dir, 'nutrient.csv') , low_memory=False)
-    categories = pd.read_csv(os.path.join(foundation_dir, 'food_category.csv'), low_memory=False)
+    categories = pd.read_csv(os.path.join(all_dir, 'food_category.csv'), low_memory=False)
     portions = pd.read_csv(os.path.join(foundation_dir, 'food_portion.csv'), low_memory=False)
     measure_units = pd.read_csv(os.path.join(foundation_dir, 'measure_unit.csv'), low_memory=False)
 
@@ -160,5 +163,11 @@ def process_foundation(
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
             os.rmdir(foundation_dir)
+
+        for root, dirs, files in os.walk(all_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+            os.rmdir(all_dir)
 
 
