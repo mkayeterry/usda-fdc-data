@@ -18,18 +18,19 @@ def process_branded(
     for path in os.listdir(raw_dir):
         if 'branded' in path:
             branded_dir = os.path.join(raw_dir, path)
+            source = define_source(branded_dir)[0]
 
     # Delete unnecessary files if keep_files flag is not specified
     if not keep_files:
         files_to_keep = ['branded_food.csv', 'food_nutrient.csv', 'food.csv', 'nutrient.csv']
         delete_unnecessary_files(branded_dir, files_to_keep)
 
-    print(f'Initializing processing for:\n> {os.path.basename(url)[:-4]}\n')
+    print(f'Initializing processing for:\n> {source}\n')
 
-    branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'), low_memory=False, nrows=10000)
-    food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), low_memory=False, nrows=10000)
-    foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), low_memory=False, nrows=10000)
-    nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), low_memory=False, nrows=10000)
+    branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'), low_memory=False)
+    food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), low_memory=False)
+    foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), low_memory=False)
+    nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), low_memory=False)
 
     # Drop unnecessary columns an rename
     branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
@@ -120,9 +121,9 @@ def process_branded(
     full_foods['usda_data_source'] = define_source(branded_dir)[0]
     full_foods['data_type'] = define_source(branded_dir)[1]
 
-    # Add columns applying ingredient_slicer function
-    full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    # # Add columns applying ingredient_slicer function
+    # full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    # full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()

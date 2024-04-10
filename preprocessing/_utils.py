@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import zipfile
 import re
-import ingredient_slicer
+# import ingredient_slicer
 
 
 
@@ -87,8 +87,11 @@ def delete_unnecessary_files(dir, files_to_keep):
         None
     """
     for root, dirs, files in os.walk(dir):
+
         for file in files:
+
             if file not in files_to_keep:
+                
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
 
@@ -212,32 +215,32 @@ def define_source(path):
 
 
 
-def apply_ingredient_slicer(entry):
-    """
-    Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
+# def apply_ingredient_slicer(entry):
+#     """
+#     Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
 
-    Args:
-        entry (str): The row entry to be processed.
+#     Args:
+#         entry (str): The row entry to be processed.
 
-    Returns:
-        selected_data (dict): A dictionary containing the quantity and standardized unit extracted from the portion modifier.
-    """
-    try:
-        res = ingredient_slicer.IngredientSlicer(entry).to_json()
+#     Returns:
+#         selected_data (dict): A dictionary containing the quantity and standardized unit extracted from the portion modifier.
+#     """
+#     try:
+#         res = ingredient_slicer.IngredientSlicer(entry).to_json()
 
-        selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
+#         selected_data = {k: res[k] for k in ('quantity', 'standardized_unit')}
 
-        if selected_data['quantity'] is None:
-            selected_data['quantity'] = 'no_value'
+#         if selected_data['quantity'] is None:
+#             selected_data['quantity'] = 'no_value'
 
-        if selected_data['standardized_unit'] is None:
-            selected_data['standardized_unit'] = 'no_value'
+#         if selected_data['standardized_unit'] is None:
+#             selected_data['standardized_unit'] = 'no_value'
             
-    except Exception as e:  
-        print(f'There was an error processing entry :"{entry}". {e}') 
-        selected_data = {'quantity': 'no_value', 'standardized_unit': 'no_value'}
+#     except Exception as e:  
+#         print(f'There was an error processing entry :"{entry}". {e}') 
+#         selected_data = {'quantity': 'no_value', 'standardized_unit': 'no_value'}
 
-    return selected_data
+#     return selected_data
 
 
 

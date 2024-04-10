@@ -19,20 +19,20 @@ args = parser.parse_args()
 
 keep_files = args.keep_files
 if keep_files:
-    print(f'\nkeep_files flag specified:\n> Raw and individual files will be kept after processing.\n')
+    print(f'keep_files flag specified:\n> Raw and individual files will be kept after processing.\n')
 
 
 # Define directories and ensure they exist (raw_dir existence will be checked in individual processing files)
 BASE_DIR = args.base_dir
 RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
-print(f'Base directory set to:\n> {BASE_DIR}\n')
+print(f'\nInitializing processing of USDA FDC data. Base directory set to:\n> {BASE_DIR}\n')
 
 if not os.path.exists(BASE_DIR):
     os.makedirs(BASE_DIR)
     print(f'Directory created:\n> {BASE_DIR}\n')
 
 
-# Gather urls and send them out to appropriate processing files
+# Gather urls and send them out to appropriate processing scripts
 usda_urls = get_usda_urls()
 
 foundation_urls = [url for url in usda_urls if 'foundation' in url or 'FoodData_Central_csv' in url]
@@ -48,7 +48,7 @@ for root, dirs, files in os.walk(BASE_DIR):
     for file in files:
         if '.parquet' in file:
             print(f'> {file}')
-            
+
 # Stack processed data, reorder columns, and save csv
 stacked_data = pd.concat([
     pd.read_parquet(os.path.join(BASE_DIR, 'processed_foundation.parquet')),
@@ -59,7 +59,7 @@ stacked_data.reset_index(drop=True, inplace=True)
 
 stacked_data = stacked_data[[
                         'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-                        'portion_amount', 'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 'portion_gram_weight', 
+                        'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight', 
                         'portion_energy', 'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat', 'fiber_total_dietary', 'sugars_total', 
                         'calcium_ca', 'iron_fe', 'vitamin_c_total_ascorbic_acid', 'vitamin_a_rae', 'vitamin_e_alphatocopherol', 
                         'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 
@@ -68,7 +68,7 @@ stacked_data = stacked_data[[
                         'potassium_k', 'zinc_zn', 'copper_cu', 'manganese_mn', 'selenium_se', 'carotene_beta', 'retinol', 'vitamin_k_dihydrophylloquinone', 
                         'vitamin_k_menaquinone4', 'tryptophan', 'threonine', 'methionine', 'phenylalanine', 'tyrosine', 'valine', 'arginine', 'histidine', 
                         'isoleucine', 'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 'glucose', 
-                        'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
+                        'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'#, 'standardized_quantity', 'standardized_portion'
                     ]]
 
 for col in stacked_data.columns.tolist():
@@ -93,5 +93,5 @@ for root, dirs, files in os.walk(BASE_DIR):
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
 
-
-    print(f'\nProcessing of USDA FDC data is complete. The processed data file ({file}) is now available in:\n> {root}\n')
+    
+print(f'\nProcessing of USDA FDC data is complete, The processed data file ({file}) is now available in:\n> {root}\n')

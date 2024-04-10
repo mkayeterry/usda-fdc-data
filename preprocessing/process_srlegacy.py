@@ -19,13 +19,14 @@ def process_srlegacy(
     for path in os.listdir(raw_dir):
         if 'sr_legacy' in path:
             srlegacy_dir = os.path.join(raw_dir, path)
+            source = define_source(srlegacy_dir)[0]
 
     # Delete unnecessary files if keep_files flag is not specified
     if not keep_files:
         files_to_keep = ['food_nutrient.csv', 'food.csv', 'nutrient.csv', 'food_category.csv', 'food_portion.csv', 'measure_unit.csv']
         delete_unnecessary_files(srlegacy_dir, files_to_keep)
 
-    print(f'Initializing processing for:\n> {os.path.basename(url)[:-4]}\n')
+    print(f'Initializing processing for:\n> {source}\n')
 
     # Load datasets
     food_nutrients = pd.read_csv(os.path.join(srlegacy_dir, 'food_nutrient.csv'), low_memory=False)
@@ -132,9 +133,9 @@ def process_srlegacy(
     full_foods['usda_data_source'] = define_source(srlegacy_dir)[0]
     full_foods['data_type'] = define_source(srlegacy_dir)[1]
 
-    # Add columns applying ingredient_slicer function
-    full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    # # Add columns applying ingredient_slicer function
+    # full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    # full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()

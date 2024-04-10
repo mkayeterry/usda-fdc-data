@@ -20,6 +20,7 @@ def process_foundation(
     for path in os.listdir(raw_dir):
         if 'foundation' in path:
             foundation_dir = os.path.join(raw_dir, path)
+            source = define_source(foundation_dir)[0]
         if 'FoodData_Central_csv' in path:
             all_dir = os.path.join(raw_dir, path)
 
@@ -31,7 +32,7 @@ def process_foundation(
         files_to_keep = ['food_category.csv']
         delete_unnecessary_files(all_dir, files_to_keep)
 
-    print(f'Initializing processing for:\n> {os.path.basename(urls[0])[:-4]}\n> {os.path.basename(urls[1])[:-4]}\n')
+    print(f'Initializing processing for:\n> {source}\n')
 
     # Load datasets
     food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)
@@ -138,9 +139,9 @@ def process_foundation(
     full_foods['usda_data_source'] = define_source(foundation_dir)[0]
     full_foods['data_type'] = define_source(foundation_dir)[1]
 
-    # Add columns applying ingredient_slicer function
-    full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    # # Add columns applying ingredient_slicer function
+    # full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    # full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()
