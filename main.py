@@ -94,4 +94,4 @@ for root, dirs, files in os.walk(BASE_DIR):
                 os.remove(file_path)
 
     
-print(f"\nProcessing of USDA FDC data is complete, The processed data file ('processed_usda_data.csv') is now available in:\n> {root}\n")
+print(f"\nProcessing of USDA FDC data is complete. The processed data file ('processed_usda_data.csv') is now available in:\n> {root}\n")
