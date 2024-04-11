@@ -143,7 +143,7 @@ def process_foundation(
 
     # Format the food_description and category values using the format_col_values function
     for col in ['food_description', 'category']:
-        full_foods[col] = full_foods[col].apply(lambda x: format_col_values(x))
+        full_foods[col] = full_foods[col].str.replace(',', '').replace('(', '').replace(')', '').str.lower()
 
 
     # Save intermediary dataframe

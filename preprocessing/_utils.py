@@ -179,22 +179,6 @@ def format_col_names(col_names):
         formatted_names.append(formatted_name)
     
     return formatted_names
-
-
-
-def format_col_values(col_value):
-    """
-    Format the given values by removing commas, parenthesis, and converting to lowercase.
-
-    Parameters:
-        col_value (str): The column value to format.
-
-    Returns:
-        formatted_value (str): The formatted column value.
-    """
-    formatted_value = col_value.replace(',', '').replace('(', '').replace(')', '').lower()
-
-    return formatted_value
     
 
 

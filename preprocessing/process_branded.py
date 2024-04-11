@@ -117,7 +117,7 @@ def process_branded(
 
     # Format the food_description, category, brand_name, and brand_owner values using the format_col_values function
     for col in ['food_description', 'category', 'brand_name', 'brand_owner']:
-        full_foods[col] = full_foods[col].apply(lambda x: format_col_values(x))
+        full_foods[col] = full_foods[col].str.replace(',', '').replace('(', '').replace(')', '').str.lower()
     
     # Format ingredient values using the format_ingredients function
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
