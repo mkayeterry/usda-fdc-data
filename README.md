@@ -37,7 +37,7 @@ The preprocessing pipeline consists of three main steps:
 3. Run the main script:
 
     ```bash
-    python main.py
+    python3 main.py
     ```
 
 ### Options
@@ -46,7 +46,7 @@ The preprocessing pipeline consists of three main steps:
 - `--keep_files`: Keep raw and individual files after processing (optional).
 
 ```bash
-python main.py --base_dir data --keep_files
+python3 main.py --base_dir data --keep_files
 ```
 
 
