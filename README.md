@@ -14,11 +14,12 @@ The preprocessing pipeline consists of three main steps:
 
 ## Usage
 
-### Prerequisites
+### Dependencies
 
 - Python 3.6 or later
 - pandas
-- argparse
+- BeautifulSoup
+- ingredient-slicer
 
 ### Running the Scripts
 
