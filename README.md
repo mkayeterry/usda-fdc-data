@@ -17,7 +17,7 @@
 <br/>
 
 ## **Overview**
-______________________________________________________________________________
+
 
 This repository contains scripts to download and process datasets from the USDA Food Data Central (FDC) for easy analysis and integration into other projects.
 <br/>
@@ -33,7 +33,7 @@ The preprocessing pipeline consists of three main steps:
 <br/>
 
 ## **Usage**
-______________________________________________________________________________
+
 
 - ### **Dependencies**
 
@@ -42,7 +42,6 @@ ______________________________________________________________________________
     - BeautifulSoup
     - ingredient-slicer
 
-<br/>
 
 - ### **Running the Scripts**
 
@@ -64,7 +63,6 @@ ______________________________________________________________________________
         python3 main.py
         ```
 
-<br/>
 
 - ### **Options**
 
@@ -78,13 +76,13 @@ ______________________________________________________________________________
 <br/>
 
 ## **Contributions**
-______________________________________________________________________________
+
 
 Data for this processing project was obtained from the [USDA FoodData Central (FDC) website](https://fdc.nal.usda.gov/).
 
 <br/>
 
 ## **License**
-______________________________________________________________________________
+
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
