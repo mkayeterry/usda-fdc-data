@@ -12,7 +12,7 @@ from preprocessing.process_branded import process_branded
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
-parser.add_argument('--base_dir', default='fdc_data', help='specify base directory (default: fdc_data)')
+parser.add_argument('--base_dir', default='fdc_data', help='specify base directory path (default: fdc_data)')
 parser.add_argument('--keep_files', action='store_true', help='keep raw/indv files, as well as processed data')
 args = parser.parse_args()
 
