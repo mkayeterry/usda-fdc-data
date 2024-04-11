@@ -1,4 +1,4 @@
-# USDA Food Data Central Preprocessing
+# USDA Food Data Central Processing
 
 This repository contains scripts to download and process datasets from the USDA Food Data Central (FDC) for easy analysis and integration into other projects.
 
