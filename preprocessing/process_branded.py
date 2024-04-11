@@ -27,16 +27,25 @@ def process_branded(
 
     print(f'Initializing processing for:\n> {source}\n')
 
-    branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'), low_memory=False)
-    food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), low_memory=False)
-    foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), low_memory=False)
-    nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), low_memory=False)
+    branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'),
+                                usecols    = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category'], 
+                                dtype      = {'fdc_id': 'int32', 'brand_owner': 'str', 'brand_name': 'str', 'ingredients': 'str', 'serving_size': 'float32', 'serving_size_unit': 'str', 'household_serving_fulltext': 'str', 'branded_food_category': 'str'},
+                                low_memory = False)
 
-    # Drop unnecessary columns an rename
-    branded_foods.drop(columns=branded_foods.columns.difference(['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category']), inplace=True)
-    food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
-    foods.drop(columns=foods.columns.difference(['fdc_id', 'description']), inplace=True)
-    nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
+    food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), 
+                                usecols    = ['fdc_id', 'nutrient_id', 'amount'], 
+                                dtype      = {'fdc_id': 'int32', 'nutrient_id': 'int32', 'amount': 'float32'}, 
+                                low_memory = False)
+
+    foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), 
+                                usecols    = ['fdc_id', 'description'], 
+                                dtype      = {'fdc_id': 'int32', 'description': 'str'}, 
+                                low_memory = False)
+
+    nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), 
+                                usecols    = ['id', 'name', 'unit_name'], 
+                                dtype      = {'id': 'int32', 'name': 'str', 'unit_name': 'str'}, 
+                                low_memory = False)
 
     branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
@@ -46,9 +55,7 @@ def process_branded(
     gc.collect()
 
     # Set data types for all columns, and fill NA values using fillna_and_define_dtype function
-    df_lst = [branded_foods, food_nutrients, foods, nutrients]
-
-    for df in df_lst:
+    for df in [branded_foods, food_nutrients, foods, nutrients]:
         for col in df.columns.tolist():
             fillna_and_define_dtype(df, col)
 
@@ -61,33 +68,11 @@ def process_branded(
 
     gc.collect()
 
-    # Filter for rows with relevant_nutrients that consumers care about
-    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)', 
-                        'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
-                        'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
-                        'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
-                        'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
-                        'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
-                        'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
-                        'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
-                        'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
-                        'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
-                        'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
-                        'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
-                        'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
+    # Filter for rows with relevant_nutrients using filter_relevent_nutrients function
+    filter_relevent_nutrients(full_foods)
 
-    full_foods = full_foods[full_foods['nutrient_name'].isin(relevant_nutrients)]
-    full_foods = full_foods[full_foods['nutrient_unit'] != 'kJ']
-
-    # Add new column for per gram amount for various nutrients
-    full_foods['multiplier'] = 0
-    full_foods.loc[full_foods['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
-    full_foods['per_gram_amt'] = round(full_foods.nutrient_amount * full_foods.multiplier, 10)
-    
-    full_foods.drop(['multiplier'], axis=1, inplace=True)
+    # Add new column for per gram amount using add_per_gram_amt function
+    add_per_gram_amt(full_foods)
     full_foods.drop(['nutrient_unit'], axis=1, inplace=True)
     full_foods.drop(['nutrient_amount'], axis=1, inplace=True)
 
@@ -121,7 +106,7 @@ def process_branded(
     full_foods['usda_data_source'] = define_source(branded_dir)[0]
     full_foods['data_type'] = define_source(branded_dir)[1]
 
-    # # Add columns applying ingredient_slicer function
+    # Add columns applying ingredient_slicer function
     # full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
     # full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
 
@@ -131,11 +116,9 @@ def process_branded(
     full_foods.columns = lst_col_names
 
     # Format the food_description, category, brand_name, and brand_owner values using the format_col_values function
-    full_foods['food_description'] = full_foods['food_description'].apply(lambda x: format_col_values(x))
-    full_foods['category'] = full_foods['category'].apply(lambda x: format_col_values(x))
-    full_foods['brand_name'] = full_foods['brand_name'].apply(lambda x: format_col_values(x))
-    full_foods['brand_owner'] = full_foods['brand_owner'].apply(lambda x: format_col_values(x))
-
+    for col in ['food_description', 'category', 'brand_name', 'brand_owner']:
+        full_foods[col] = full_foods[col].apply(lambda x: format_col_values(x))
+    
     # Format ingredient values using the format_ingredients function
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
 

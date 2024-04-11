@@ -35,7 +35,7 @@ def download_usda_csv(csv_url, raw_dir):
     """
     Download and extract a USDA CSV file from the provided URL.
 
-    Args:
+    Parameters:
         csv_url (str): The URL pointing to the USDA CSV file to be downloaded.
         raw_dir (str): The directory where the downloaded and extracted file will be saved.
 
@@ -46,7 +46,7 @@ def download_usda_csv(csv_url, raw_dir):
         """
         Download a file from a URL and save it to the specified path.
 
-        Args:
+        Parameters:
             url (str): The URL of the file to be downloaded.
             save_path (str): The path where the downloaded file will be saved.
             chunk_size (int): The size of each download chunk (default is 128 bytes).
@@ -79,7 +79,7 @@ def delete_unnecessary_files(dir, files_to_keep):
     """
     Delete unnecessary files from a directory, keeping only specified files.
 
-    Args:
+    Parameters:
         dir_path (str): The path to the directory containing the files.
         files_to_keep (list of str): A list of filenames to keep in the directory.
 
@@ -97,6 +97,60 @@ def delete_unnecessary_files(dir, files_to_keep):
 
 
 
+def filter_relevent_nutrients(df):
+    """
+    Filter the DataFrame to include only rows with relevant nutrients that consumers care about.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame containing nutrient data.
+
+    Returns:
+    - None
+    """
+    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)', 
+                        'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
+                        'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
+                        'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
+                        'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
+                        'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
+                        'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
+                        'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
+                        'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
+                        'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
+                        'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
+                        'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
+                        'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
+
+    df.drop(df[~df['nutrient_name'].isin(relevant_nutrients) | (df['nutrient_unit'] == 'kJ')].index, inplace=True)
+
+
+
+
+def add_per_gram_amt(df):
+    """
+    Add a new column for the per gram amount of various nutrients to the DataFrame.
+
+    This function calculates the per gram amount for each nutrient based on its unit and adds a new column 
+    'per_gram_amt' to the DataFrame.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame containing nutrient data.
+
+    Returns:
+    - None
+    """
+    df['multiplier'] = 0
+
+    df.loc[df['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
+    df.loc[df['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
+    df.loc[df['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
+    df.loc[df['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
+
+    df['per_gram_amt'] = round(df.nutrient_amount * df.multiplier, 10)
+    
+    df.drop(['multiplier'], axis=1, inplace=True)
+
+
 
 def format_col_names(col_names):
     """
@@ -105,7 +159,7 @@ def format_col_names(col_names):
     - Replaces whitespaces with underscores,
     - Forces all lowercase
     
-    Args:
+    Parameters:
         col_names (list): A list of strings representing column names.
         
     Returns:
@@ -132,7 +186,7 @@ def format_col_values(col_value):
     """
     Format the given values by removing commas, parenthesis, and converting to lowercase.
 
-    Args:
+    Parameters:
         col_value (str): The column value to format.
 
     Returns:
@@ -154,7 +208,7 @@ def format_ingredients(ingredients):
     5. Split the ingredients string into a list, splitting at commas.
     6. Strip whitespace from each item in the ingredients list.
     
-    Args:
+    Parameters:
         ingredients (str): The input string containing ingredients information.
         
     Returns:
@@ -191,7 +245,7 @@ def define_source(path):
     """
     Determines the data source type based on the given path.
 
-    Args:
+    Parameters:
         path (str): The file path from which to extract the data source type.
 
     Returns:
@@ -219,7 +273,7 @@ def define_source(path):
 #     """
 #     Applies the IngredientSlicer to a portion modifier and returns the quantity and standardized unit.
 
-#     Args:
+#     Parameters:
 #         entry (str): The row entry to be processed.
 
 #     Returns:
@@ -250,7 +304,7 @@ def fillna_and_define_dtype(df, col):
     based on the data types defined in the 'data_types' dictionary. Also, convert 
     the data type of the column to float32 if it matches the float type.
 
-    Args:
+    Parameters:
         df (pandas.DataFrame): The DataFrame to be processed.
         col (str): The column name to be processed.
 
@@ -348,7 +402,10 @@ def fillna_and_define_dtype(df, col):
     if col in data_types:
         df[col].fillna(data_types[col], inplace=True)
 
-    if type(data_types[col]) == float:
-        df[col] = df[col].astype('float32', errors='ignore')
+        if type(data_types[col]) == float:
+            df[col] = df[col].astype('float32', errors='ignore')
+
+        if type(data_types[col]) == int:
+            df[col] = df[col].astype('int32', errors='ignore')
 
 

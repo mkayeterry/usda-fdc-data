@@ -35,20 +35,36 @@ def process_foundation(
     print(f'Initializing processing for:\n> {source}\n')
 
     # Load datasets
-    food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), low_memory=False)
-    foods = pd.read_csv(os.path.join(foundation_dir, 'food.csv'), low_memory=False)
-    nutrients = pd.read_csv(os.path.join(foundation_dir, 'nutrient.csv') , low_memory=False)
-    categories = pd.read_csv(os.path.join(all_dir, 'food_category.csv'), low_memory=False)
-    portions = pd.read_csv(os.path.join(foundation_dir, 'food_portion.csv'), low_memory=False)
-    measure_units = pd.read_csv(os.path.join(foundation_dir, 'measure_unit.csv'), low_memory=False)
 
-    # Drop unnecessary columns and rename
-    food_nutrients.drop(columns=food_nutrients.columns.difference(['fdc_id', 'nutrient_id', 'amount']), inplace=True)
-    foods.drop(columns=foods.columns.difference(['fdc_id', 'description', 'food_category_id']), inplace=True)
-    nutrients.drop(columns=nutrients.columns.difference(['id', 'name', 'unit_name']), inplace=True)
-    categories.drop(columns=categories.columns.difference(['id', 'description']), inplace=True)
-    portions.drop(columns=portions.columns.difference(['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight']), inplace=True)
-    measure_units.drop(columns=measure_units.columns.difference(['id', 'name']), inplace=True)
+    food_nutrients = pd.read_csv(os.path.join(foundation_dir, 'food_nutrient.csv'), 
+                                usecols    = ['fdc_id', 'nutrient_id', 'amount'], 
+                                dtype      = {'fdc_id': 'int32', 'nutrient_id': 'int32', 'amount': 'float32'}, 
+                                low_memory = False)
+
+    foods = pd.read_csv(os.path.join(foundation_dir, 'food.csv'),
+                                usecols    = ['fdc_id', 'description', 'food_category_id'], 
+                                dtype      = {'fdc_id': 'int32', 'description': 'str', 'food_category_id': 'float32'}, 
+                                low_memory = False)
+
+    nutrients = pd.read_csv(os.path.join(foundation_dir, 'nutrient.csv'),
+                                usecols    = ['id', 'name', 'unit_name'], 
+                                dtype      = {'id': 'int32', 'name': 'str', 'unit_name': 'str'}, 
+                                low_memory = False)
+
+    categories = pd.read_csv(os.path.join(all_dir, 'food_category.csv'),
+                                usecols    = ['id', 'description'], 
+                                dtype      = {'id': 'int32', 'description': 'str'}, 
+                                low_memory = False)
+
+    portions = pd.read_csv(os.path.join(foundation_dir, 'food_portion.csv'),
+                                usecols    = ['id', 'fdc_id', 'amount', 'measure_unit_id', 'modifier', 'gram_weight'], 
+                                dtype      = {'id': 'int32', 'fdc_id': 'int32', 'amount': 'float32', 'measure_unit_id': 'int32', 'modifier': 'str', 'gram_weight': 'float32'}, 
+                                low_memory = False)
+
+    measure_units = pd.read_csv(os.path.join(foundation_dir, 'measure_unit.csv'),
+                                usecols    = ['id', 'name'], 
+                                dtype      = {'id': 'int32', 'name': 'str'}, 
+                                low_memory=False)
 
     food_nutrients.rename(columns={'amount': 'nutrient_amount'}, inplace=True)
     foods.rename(columns={'description': 'food_description', 'food_category_id': 'category_id'}, inplace=True)
@@ -60,9 +76,7 @@ def process_foundation(
     gc.collect()
 
     # Set data types for all columns, and fill NA values using fillna_and_define_dtype function
-    df_lst = [food_nutrients, foods, nutrients, categories, portions, measure_units]
-
-    for df in df_lst:
+    for df in [food_nutrients, foods, nutrients, categories, portions, measure_units]:
         for col in df.columns.tolist():
             fillna_and_define_dtype(df, col)
 
@@ -87,32 +101,11 @@ def process_foundation(
 
     gc.collect()
 
-    # Filter for rows with relevant_nutrients that consumers care about
-    relevant_nutrients = ['Energy', 'Protein', 'Carbohydrate, by difference', 'Total lipid (fat)', 
-                        'Iron, Fe', 'Sodium, Na', 'Cholesterol', 'Fatty acids, total trans', 'Fatty acids, total saturated', 
-                        'Fiber, total dietary', 'Sugars, Total','Vitamin A, RAE', 'Vitamin C, total ascorbic acid', 
-                        'Calcium, Ca', 'Retinol', 'Folate, total', 'Fatty acids, total monounsaturated', 'Fatty acids, total polyunsaturated', 
-                        'Riboflavin', 'Vitamin B-12', 'Vitamin K (Dihydrophylloquinone)', 'Vitamin K (phylloquinone)', 
-                        'Tryptophan', 'Threonine', 'Methionine', 'Phenylalanine', 'Carotene, beta', 'Thiamin', 
-                        'Starch', 'Fructose', 'Lactose', 'Galactose', 'Magnesium, Mg', 'Phosphorus, P', 'Copper, Cu',
-                        'Manganese, Mn', 'Tyrosine', 'Alanine', 'Glutamic acid', 'Glycine', 'Proline', 'Valine',
-                        'Arginine', 'Histidine', 'Aspartic acid', 'Serine', 'Sucrose', 'Glucose', 'Maltose',
-                        'Potassium, K', 'Zinc, Zn', 'Selenium, Se', 'Vitamin E (alpha-tocopherol)', 'Niacin', 'Pantothenic acid', 
-                        'Vitamin B-6', 'Isoleucine', 'Leucine', 'Lysine', 'Cystine', 
-                        'Choline, total', 'Betaine', 'Vitamin K (Menaquinone-4)', 
-                        'Vitamin D3 (cholecalciferol)', 'Vitamin D2 (ergocalciferol)']
+    # Filter for rows with relevant_nutrients using filter_relevent_nutrients function
+    filter_relevent_nutrients(full_foods)
 
-    full_foods = full_foods[full_foods['nutrient_name'].isin(relevant_nutrients)]
-    full_foods = full_foods[full_foods['nutrient_unit'] != 'kJ'] # Drop energy when in kJ (only kcal needed)
-
-    # Add new column for per gram amount for various nutrients
-    full_foods['multiplier'] = 0
-    full_foods.loc[full_foods['nutrient_unit'] == 'KCAL', 'multiplier'] = round(1/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'G', 'multiplier'] = round(1/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'MG', 'multiplier'] = round(0.001/100, 10)
-    full_foods.loc[full_foods['nutrient_unit'] == 'UG', 'multiplier'] = round(0.000001/100, 10)
-    full_foods['per_gram_amt'] = round(full_foods.nutrient_amount * full_foods.multiplier, 10)
-    full_foods.drop(['multiplier'], axis=1, inplace=True)
+    # Add new column for per gram amount using add_per_gram_amt function
+    add_per_gram_amt(full_foods)
 
     gc.collect()
 
@@ -149,8 +142,9 @@ def process_foundation(
     full_foods.columns = lst_col_names
 
     # Format the food_description and category values using the format_col_values function
-    full_foods['food_description'] = full_foods['food_description'].apply(lambda x: format_col_values(x))
-    full_foods['category'] = full_foods['category'].apply(lambda x: format_col_values(x))
+    for col in ['food_description', 'category']:
+        full_foods[col] = full_foods[col].apply(lambda x: format_col_values(x))
+
 
     # Save intermediary dataframe
     full_foods.to_parquet(os.path.join(base_dir, f'processed_foundation.parquet'))
