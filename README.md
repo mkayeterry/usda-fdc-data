@@ -77,7 +77,7 @@ The preprocessing pipeline consists of three main steps:
 
 - ### **Output Data**
 
-    The output data from the preprocessing pipeline is standardized and contains the following information:
+    The processed USDA data contains a total of 650,701 entries and 76 columns. The output data is standardized and contains the following information:
 
     #### **String Identifiers**
     - **`fdc_id`**: The unique identifier assigned to each food item within the USDA Food Data Central.

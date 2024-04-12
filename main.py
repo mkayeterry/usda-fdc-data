@@ -59,7 +59,7 @@ stacked_data.reset_index(drop=True, inplace=True)
 
 stacked_data = stacked_data[[
                         'fdc_id', 'usda_data_source', 'data_type', 'category', 'brand_owner', 'brand_name', 'food_description', 'ingredients', 
-                        'portion_amount', 'portion_unit', 'portion_modifier', 'portion_gram_weight', 
+                        'portion_amount', 'portion_unit', 'portion_modifier', 'standardized_quantity', 'standardized_portion', 'portion_gram_weight', 
                         'portion_energy', 'energy', 'carbohydrate_by_difference', 'protein', 'total_lipid_fat', 'fiber_total_dietary', 'sugars_total', 
                         'calcium_ca', 'iron_fe', 'vitamin_c_total_ascorbic_acid', 'vitamin_a_rae', 'vitamin_e_alphatocopherol', 
                         'sodium_na', 'cholesterol', 'fatty_acids_total_saturated', 'fatty_acids_total_trans', 'fatty_acids_total_monounsaturated', 
@@ -68,7 +68,7 @@ stacked_data = stacked_data[[
                         'potassium_k', 'zinc_zn', 'copper_cu', 'manganese_mn', 'selenium_se', 'carotene_beta', 'retinol', 'vitamin_k_dihydrophylloquinone', 
                         'vitamin_k_menaquinone4', 'tryptophan', 'threonine', 'methionine', 'phenylalanine', 'tyrosine', 'valine', 'arginine', 'histidine', 
                         'isoleucine', 'leucine', 'lysine', 'cystine', 'alanine', 'glutamic_acid', 'glycine', 'proline', 'serine', 'sucrose', 'glucose', 
-                        'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'#, 'standardized_quantity', 'standardized_portion'
+                        'maltose', 'fructose', 'lactose', 'galactose', 'choline_total', 'betaine'
                     ]]
 
 for col in stacked_data.columns.tolist():
@@ -95,3 +95,4 @@ for root, dirs, files in os.walk(BASE_DIR):
 
     
 print(f"\nProcessing of USDA FDC data is complete. The processed data file ('processed_usda_data.csv') is now available in:\n> {root}\n")
+

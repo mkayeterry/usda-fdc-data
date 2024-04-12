@@ -107,8 +107,11 @@ def process_branded(
     full_foods['data_type'] = define_source(branded_dir)[1]
 
     # Add columns applying ingredient_slicer function
-    # full_foods['standardized_quantity'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    # full_foods['standardized_portion'] = full_foods['portion_modifier'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    full_foods['portion_combined'] = full_foods.loc[:, 'portion_amount'].astype(str) + ' ' + full_foods.loc[:, 'portion_unit'] + ' ' + full_foods.loc[:, 'portion_modifier']
+    full_foods['standardized_quantity'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    full_foods['standardized_portion'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    full_foods.drop(['portion_combined'], axis=1, inplace=True)
+    gc.collect()
 
     # Format the column names using the format_col_names function
     lst_col_names = full_foods.columns.to_list()
