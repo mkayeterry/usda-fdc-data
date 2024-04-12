@@ -11,7 +11,7 @@
     - [Dependencies](#dependencies)
     - [Running the Scripts](#running-the-scripts)
     - [Options](#options)
-    - [Output Data](#data)
+    - [Output Data](#output-data)
 3. [Contributions](#contributions)
 4. [License](#license)
 
@@ -95,6 +95,8 @@ The preprocessing pipeline consists of three main steps:
     - **`portion_modifier`**: Any modifier applied to the portion, such as "large" or "1/8 of crust".
     - **`portion_gram_weight`**: The weight of the portion in grams.
     - **`portion_energy`**: The energy content in calories per portion.
+    - **`std_portion_amount`**: Standardized portion amount, derived from the combination of portion_amount, portion_unit, and portion_modifier.
+    - **`std_portion_unit`**: Standardized portion unit, derived from the combination of portion_amount, portion_unit, and portion_modifier.
 
     #### **Macronutrients Per Gram**
     - **`energy`**: The energy content per gram of the food item.

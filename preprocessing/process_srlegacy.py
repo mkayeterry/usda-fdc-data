@@ -127,8 +127,8 @@ def process_srlegacy(
 
     # Add columns applying ingredient_slicer function
     full_foods['portion_combined'] = full_foods.loc[:, 'portion_amount'].astype(str) + ' ' + full_foods.loc[:, 'portion_unit'] + ' ' + full_foods.loc[:, 'portion_modifier']
-    full_foods['standardized_quantity'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
-    full_foods['standardized_portion'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
+    full_foods['std_portion_amount'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[0])
+    full_foods['std_portion_unit'] = full_foods['portion_combined'].apply(lambda x: list(apply_ingredient_slicer(x).values())[1])
     full_foods.drop(['portion_combined'], axis=1, inplace=True)
     gc.collect()
 
