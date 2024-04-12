@@ -23,13 +23,22 @@
 This repository contains scripts to download and process datasets from the USDA Food Data Central (FDC) for easy analysis and integration into other projects.
 <br/>
 
-The preprocessing pipeline consists of three main steps:
+1. **Preprocessing**:
+   - The preprocessing pipeline consists of three scripts, each handling a specific data type (Foundation Foods, SR Legacy Foods, and Branded Foods).
+   - Within each script:
+     - Data is downloaded and read in from URLs gathered in `main.py`.
+     - Only relevant dataframes and columns are kept, unless the `keep_files` flag is specified.
+     - Data is cleaned, merged, aggregated, supplemented, and saved as an intermediary Parquet file.
 
-1. **Downloading Data:** The scripts fetch data by scraping information from the USDA FoodData Central (FDC) website. There are separate scripts for each dataset: Foundation Foods, SR Legacy Foods, and Branded Foods.
+2. **Data Stacking**:
+   - Upon completion of individual processing, intermediary Parquet files are read into `main.py`.
+   - The data is stacked together.
+   - Missing values are filled.
+   - The resulting data is saved within the base directory as a CSV file.
 
-2. **Processing Data:** Each dataset is downloaded and processed individually. The preprocessing involves handling missing values, cleaning, joining, and aggregating data. Upon preprocessing completion, the intermediary file is saved, and the downloaded data is deleted (unless keep_files flag is specified).
+3. **Cleanup**:
+   - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified.
 
-3. **Stacking Data:** After processing each dataset, the individual processed files are stacked together to create a single comprehensive dataset and saved as a CSV to the specified or default base directory.
 
 <br/>
 
@@ -67,7 +76,7 @@ The preprocessing pipeline consists of three main steps:
 - ### **Options**
 
     `--base_dir`: Specify the base directory path (default: `fdc_data`).<br/>
-    `--keep_files`: Keep raw and individual files after processing (optional).
+    `--keep_files`: Keep raw and individual files after processing (optional, for optimal memory utilization).
 
     ```bash
     python3 main.py --base_dir data --keep_files
@@ -95,8 +104,8 @@ The preprocessing pipeline consists of three main steps:
     - **`portion_modifier`**: Any modifier applied to the portion, such as "large" or "1/8 of crust".
     - **`portion_gram_weight`**: The weight of the portion in grams.
     - **`portion_energy`**: The energy content in calories per portion.
-    - **`std_portion_amount`**: Standardized portion amount, derived from the combination of portion_amount, portion_unit, and portion_modifier.
-    - **`std_portion_unit`**: Standardized portion unit, derived from the combination of portion_amount, portion_unit, and portion_modifier.
+    - **`std_portion_amount`**: Standardized portion amount, derived from the combination of portion_amount, portion_unit, and portion_modifier (i.e. 'one' --> 1).
+    - **`std_portion_unit`**: Standardized portion unit, derived from the combination of portion_amount, portion_unit, and portion_modifier (i.e. 'oz' --> 'ounces').
 
     #### **Macronutrients Per Gram**
     - **`energy`**: The energy content per gram of the food item.
