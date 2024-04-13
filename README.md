@@ -160,4 +160,16 @@ This repository contains scripts to download and process datasets from the USDA 
 ## **Contributions**
 
 
-Data for this processing project was obtained from the [USDA FoodData Central (FDC) website](https://fdc.nal.
+Data for this processing project was obtained from the [USDA FoodData Central (FDC) website](https://fdc.nal.usda.gov/).
+
+<br/>
+
+## **License**
+
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
