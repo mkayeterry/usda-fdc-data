@@ -109,5 +109,5 @@ for root, dirs, files in os.walk(OUTPUT_DIR):
                 os.remove(file_path)
 
 
-print(f"\nProcessing of USDA FDC data is complete. The processed data file ('usda_food_nutrition_data.parquet') is now available in:\n> {OUTPUT_DIR}\n")
+print(f"\nProcessing of USDA FDC data is complete. The processed data file ('{filename}') is now available in:\n> {OUTPUT_DIR}\n")
 
