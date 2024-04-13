@@ -5,7 +5,7 @@ from preprocessing._utils import *
 
 def process_foundation(
         urls = None, 
-        base_dir = None, 
+        output_dir = None, 
         raw_dir = None, 
         keep_files = False, 
     ):
@@ -150,7 +150,7 @@ def process_foundation(
 
 
     # Save intermediary dataframe
-    full_foods.to_parquet(os.path.join(base_dir, f'processed_foundation.parquet'))
+    full_foods.to_parquet(os.path.join(output_dir, f'processed_foundation.parquet'))
 
     # Delete remaining files if keep_files flag is not specified
     if not keep_files:

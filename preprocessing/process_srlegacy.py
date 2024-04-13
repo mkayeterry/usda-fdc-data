@@ -5,7 +5,7 @@ from preprocessing._utils import *
 
 def process_srlegacy(
         url = None, 
-        base_dir = None, 
+        output_dir = None, 
         raw_dir = None, 
         keep_files = False, 
     ):
@@ -142,7 +142,7 @@ def process_srlegacy(
         full_foods[col] = full_foods[col].str.replace(',', '').replace('(', '').replace(')', '').str.lower()
 
     # Save intermediary dataframe
-    full_foods.to_parquet(os.path.join(base_dir, f'processed_srlegacy.parquet'))
+    full_foods.to_parquet(os.path.join(output_dir, f'processed_srlegacy.parquet'))
 
     # Delete remaining files if keep_files flag is not specified
     if not keep_files:

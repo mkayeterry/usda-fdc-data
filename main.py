@@ -1,6 +1,7 @@
 import argparse
 import os
 import pandas as pd
+import warnings
 
 from preprocessing._utils import get_usda_urls
 from preprocessing._utils import fillna_and_define_dtype
@@ -12,9 +13,18 @@ from preprocessing.process_branded import process_branded
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
-parser.add_argument('--base_dir', default='fdc_data', help='specify base directory path (default: fdc_data)')
-parser.add_argument('--keep_files', action='store_true', help='keep raw/indv files, as well as processed data')
+parser.add_argument('--output_dir', default='fdc_data', help='specify output directory path (default: fdc_data)')
+parser.add_argument('--filename', default='usda_food_nutrition_data.csv', help='specify output filename and extension (default: usda_food_nutrition_data.csv)')
+parser.add_argument('--keep_files', action='store_true', help='keep raw/indv files post-processing (default: delete raw/indv files)')
 args = parser.parse_args()
+
+# Check filename and extension, default to csv if not in supported format
+filename = args.filename
+file_ext = filename.split('.')[-1]
+save_exts = ['csv', 'xlsx', 'xls', 'hdf', 'json', 'parquet', 'feather', 'sql']
+if file_ext not in save_exts:
+    print(f"\nUserWarning: The file extension '{file_ext}' is not in the list of supported extensions: {', '.join(save_exts)}\n> File will be saved to 'csv' as default.")
+    filename = filename.split('.')[0] + '.csv'
 
 
 keep_files = args.keep_files
@@ -23,13 +33,14 @@ if keep_files:
 
 
 # Define directories and ensure they exist (raw_dir existence will be checked in individual processing files)
-BASE_DIR = args.base_dir
-RAW_DIR = os.path.join(BASE_DIR, 'FoodData_Central_raw')
-print(f'\nInitializing processing of USDA FDC data. Base directory set to:\n> {BASE_DIR}\n')
+OUTPUT_DIR = args.output_dir
+RAW_DIR = os.path.join(OUTPUT_DIR, 'FoodData_Central_raw')
+print(f'\nInitializing processing of USDA FDC data. Output directory set to:\n> {OUTPUT_DIR}\n')
 
-if not os.path.exists(BASE_DIR):
-    os.makedirs(BASE_DIR)
-    print(f'Directory created:\n> {BASE_DIR}\n')
+
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+    print(f'Directory created:\n> {OUTPUT_DIR}\n')
 
 
 # Gather urls and send them out to appropriate processing scripts
@@ -39,21 +50,22 @@ foundation_urls = [url for url in usda_urls if 'foundation' in url or 'FoodData_
 srlegacy_url = [url for url in usda_urls if 'sr_legacy' in url][0]
 branded_url = [url for url in usda_urls if 'branded' in url][0]
 
-process_foundation(foundation_urls, BASE_DIR, RAW_DIR, keep_files)
-process_srlegacy(srlegacy_url, BASE_DIR, RAW_DIR, keep_files)
-process_branded(branded_url, BASE_DIR, RAW_DIR, keep_files)
+process_foundation(foundation_urls, OUTPUT_DIR, RAW_DIR, keep_files)
+process_srlegacy(srlegacy_url, OUTPUT_DIR, RAW_DIR, keep_files)
+process_branded(branded_url, OUTPUT_DIR, RAW_DIR, keep_files)
 
 print(f'Initializing stacking of individually processed data:')
-for root, dirs, files in os.walk(BASE_DIR):
+for root, dirs, files in os.walk(OUTPUT_DIR):
     for file in files:
         if '.parquet' in file:
             print(f'> {file}')
 
+
 # Stack processed data, reorder columns, and save csv
 stacked_data = pd.concat([
-    pd.read_parquet(os.path.join(BASE_DIR, 'processed_foundation.parquet')),
-    pd.read_parquet(os.path.join(BASE_DIR, 'processed_srlegacy.parquet')),
-    pd.read_parquet(os.path.join(BASE_DIR, 'processed_branded.parquet'))
+    pd.read_parquet(os.path.join(OUTPUT_DIR, 'processed_foundation.parquet')),
+    pd.read_parquet(os.path.join(OUTPUT_DIR, 'processed_srlegacy.parquet')),
+    pd.read_parquet(os.path.join(OUTPUT_DIR, 'processed_branded.parquet'))
 ])
 stacked_data.reset_index(drop=True, inplace=True)
 
@@ -74,11 +86,14 @@ stacked_data = stacked_data[[
 for col in stacked_data.columns.tolist():
     fillna_and_define_dtype(stacked_data, col)
 
-stacked_data.to_csv(os.path.join(BASE_DIR, 'processed_usda_data.csv'), index=False)
+
+# Determine the appropriate save method based on file extension
+save_method = getattr(stacked_data, f"to_{filename.split('.')[-1]}")
+save_method(os.path.join(OUTPUT_DIR, filename), index=False)
 
 
 # Delete raw dir/individual processed files if keep_files flag is not specified
-for root, dirs, files in os.walk(BASE_DIR):
+for root, dirs, files in os.walk(OUTPUT_DIR):
     for file in files:
 
         if not keep_files:
@@ -93,6 +108,6 @@ for root, dirs, files in os.walk(BASE_DIR):
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
 
-    
-print(f"\nProcessing of USDA FDC data is complete. The processed data file ('processed_usda_data.csv') is now available in:\n> {root}\n")
+
+print(f"\nProcessing of USDA FDC data is complete. The processed data file ('usda_food_nutrition_data.parquet') is now available in:\n> {OUTPUT_DIR}\n")
 

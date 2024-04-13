@@ -4,7 +4,7 @@ from preprocessing._utils import *
 
 def process_branded(
         url = None, 
-        base_dir = None, 
+        output_dir = None, 
         raw_dir = None, 
         keep_files = False, 
     ):
@@ -45,6 +45,7 @@ def process_branded(
     nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), 
                                 usecols    = ['id', 'name', 'unit_name'], 
                                 dtype      = {'id': 'int32', 'name': 'str', 'unit_name': 'str'}, 
+                                nrows = 10000, 
                                 low_memory = False)
 
     branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)
@@ -126,7 +127,7 @@ def process_branded(
     full_foods['ingredients'] = full_foods['ingredients'].apply(lambda x: format_ingredients(x))
 
     # Save intermediary dataframe
-    full_foods.to_parquet(os.path.join(base_dir, f'processed_branded.parquet'))
+    full_foods.to_parquet(os.path.join(output_dir, f'processed_branded.parquet'))
 
     # Delete ramining files if keep_files flag is not specified
     if not keep_files:

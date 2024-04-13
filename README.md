@@ -34,7 +34,7 @@ This repository contains scripts to download and process datasets from the USDA 
    - Upon completion of individual processing, intermediary Parquet files are read into `main.py`.
    - The data is stacked together.
    - Missing values are filled.
-   - The resulting data is saved within the base directory as a CSV file.
+   - The resulting data is saved within the output directory as a CSV file.
 
 3. **Cleanup**:
    - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified.
@@ -75,11 +75,12 @@ This repository contains scripts to download and process datasets from the USDA 
 
 - ### **Options**
 
-    `--base_dir`: Specify the base directory path (default: `fdc_data`).<br/>
-    `--keep_files`: Keep raw and individual files after processing (optional, for optimal memory utilization).
+    `--output_dir`: Specify the output directory path (default: `fdc_data`).<br/>
+    `--filename`: , Specify output filename and extension (default: `usda_food_nutrition_data.csv`).<br/>
+    `--keep_files`: Keep raw and individual files after processing (for optimal memory utilization).
 
     ```bash
-    python3 main.py --base_dir data --keep_files
+    python3 main.py --output_dir data -- filename output_data.parquet --keep_files
     ```
 
 
