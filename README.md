@@ -27,17 +27,17 @@ This repository contains scripts to download and process datasets from the USDA 
    - The preprocessing pipeline consists of three scripts, each handling a specific data type (Foundation Foods, SR Legacy Foods, and Branded Foods).
    - Within each script:
      - Data is downloaded and read in from URLs gathered in `main.py`.
-     - Only relevant dataframes and columns are kept, unless the `keep_files` flag is specified.
+     - Only relevant dataframes and columns are kept, unless the `keep_files` flag is specified in arguments.
      - Data is cleaned, merged, aggregated, supplemented, and saved as an intermediary Parquet file.
 
 2. **Data Stacking**:
    - Upon completion of individual processing, intermediary Parquet files are read into `main.py`.
    - The data is stacked together.
    - Missing values are filled.
-   - The resulting data is saved within the output directory as a CSV file.
+   - The resulting data is saved within the output directory as a CSV file (unless otherwise specified in `filename` argument).
 
 3. **Cleanup**:
-   - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified.
+   - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified in arguments.
 
 
 <br/>
