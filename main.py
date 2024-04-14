@@ -1,7 +1,6 @@
 import argparse
 import os
 import pandas as pd
-import warnings
 
 from preprocessing._utils import get_usda_urls
 from preprocessing._utils import fillna_and_define_dtype
