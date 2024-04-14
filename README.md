@@ -76,11 +76,11 @@ This repository contains scripts to download and process datasets from the USDA 
 - ### **Options**
 
     `--output_dir`: Specify the output directory path (default: `fdc_data`).<br/>
-    `--filename`: , Specify output filename and extension (default: `usda_food_nutrition_data.csv`).<br/>
+    `--filename`: Specify output filename (default: `usda_food_nutrition_data.csv`).<br/>
     `--keep_files`: Keep raw and individual files after processing (for optimal memory utilization).
 
     ```bash
-    python3 main.py --output_dir data -- filename output_data.parquet --keep_files
+    python3 main.py --output_dir data -- filename data.csv --keep_files
     ```
 
 

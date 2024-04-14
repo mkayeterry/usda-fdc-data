@@ -30,25 +30,21 @@ def process_branded(
     branded_foods = pd.read_csv(os.path.join(branded_dir, 'branded_food.csv'),
                                 usecols    = ['fdc_id', 'brand_owner', 'brand_name', 'ingredients', 'serving_size', 'serving_size_unit', 'household_serving_fulltext', 'branded_food_category'], 
                                 dtype      = {'fdc_id': 'int32', 'brand_owner': 'str', 'brand_name': 'str', 'ingredients': 'str', 'serving_size': 'float32', 'serving_size_unit': 'str', 'household_serving_fulltext': 'str', 'branded_food_category': 'str'},
-                                # nrows = 10000, 
                                 low_memory = False)
 
     food_nutrients = pd.read_csv(os.path.join(branded_dir, 'food_nutrient.csv'), 
                                 usecols    = ['fdc_id', 'nutrient_id', 'amount'], 
-                                dtype      = {'fdc_id': 'int32', 'nutrient_id': 'int32', 'amount': 'float32'}, 
-                                # nrows = 10000, 
+                                dtype      = {'fdc_id': 'int32', 'nutrient_id': 'int32', 'amount': 'float32'},  
                                 low_memory = False)
 
     foods = pd.read_csv(os.path.join(branded_dir, 'food.csv'), 
                                 usecols    = ['fdc_id', 'description'], 
                                 dtype      = {'fdc_id': 'int32', 'description': 'str'}, 
-                                # nrows = 10000, 
                                 low_memory = False)
 
     nutrients = pd.read_csv(os.path.join(branded_dir, 'nutrient.csv'), 
                                 usecols    = ['id', 'name', 'unit_name'], 
                                 dtype      = {'id': 'int32', 'name': 'str', 'unit_name': 'str'}, 
-                                # nrows = 10000, 
                                 low_memory = False)
 
     branded_foods.rename(columns={'serving_size': 'portion_amount', 'serving_size_unit': 'portion_unit', 'household_serving_fulltext': 'portion_modifier', 'branded_food_category': 'category'}, inplace=True)

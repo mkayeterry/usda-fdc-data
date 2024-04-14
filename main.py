@@ -14,19 +14,18 @@ from preprocessing.process_branded import process_branded
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='download and process USDA Food Data Central datasets.')
 parser.add_argument('--output_dir', default='fdc_data', help='specify output directory path (default: fdc_data)')
-parser.add_argument('--filename', default='usda_food_nutrition_data.csv', help='specify output filename and extension (default: usda_food_nutrition_data.csv)')
+parser.add_argument('--filename', default='usda_food_nutrition_data.parquet', help='specify output filename (default: usda_food_nutrition_data.csv')
 parser.add_argument('--keep_files', action='store_true', help='keep raw/indv files post-processing (default: delete raw/indv files)')
 args = parser.parse_args()
 
-# Check filename and extension, default to csv if not in supported format
+
+# Check filename and extension
 filename = args.filename
-file_ext = filename.split('.')[-1]
-save_exts = ['csv', 'xlsx', 'xls', 'hdf', 'json', 'parquet', 'feather', 'sql']
-if file_ext not in save_exts:
-    print(f"\nUserWarning: The file extension '{file_ext}' is not in the list of supported extensions: {', '.join(save_exts)}\n> File will be saved to 'csv' as default.")
-    filename = filename.split('.')[0] + '.csv'
+file_ext = filename.split('.')[-1] if '.' in filename else None
+filename = filename if file_ext else f"{filename}.csv"
 
 
+# Check keep_files flag
 keep_files = args.keep_files
 if keep_files:
     print(f"\n'keep_files' flag specified:\n> Raw and individual files will be kept after processing.")
@@ -86,10 +85,8 @@ stacked_data = stacked_data[[
 for col in stacked_data.columns.tolist():
     fillna_and_define_dtype(stacked_data, col)
 
+stacked_data.to_csv(os.path.join(OUTPUT_DIR, filename), index=False)
 
-# Determine the appropriate save method based on file extension
-save_method = getattr(stacked_data, f"to_{filename.split('.')[-1]}")
-save_method(os.path.join(OUTPUT_DIR, filename), index=False)
 
 
 # Delete raw dir/individual processed files if keep_files flag is not specified
