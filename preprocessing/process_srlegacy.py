@@ -221,12 +221,12 @@ def process_srlegacy(
         full_foods[col] = full_foods[col].str.replace(',', '').replace('(', '').replace(')', '').str.lower()
 
     # group by food_description and bfill() and ffill() the "food_common_name" column 
-    full_foods['food_common_name'] = np.where(
-                                            full_foods['food_common_name'] == 'no_value',
-                                            np.nan,
-                                            full_foods['food_common_name']
-                                            )
-    full_foods['food_common_name'] = full_foods.groupby('food_description')['food_common_name'].bfill().ffill()
+    # full_foods['food_common_name'] = np.where(
+    #                                         full_foods['food_common_name'] == 'no_value',
+    #                                         np.nan,
+    #                                         full_foods['food_common_name']
+    #                                         )
+    # full_foods['food_common_name'] = full_foods.groupby('food_description')['food_common_name'].bfill().ffill()
     
     # Fill in any remaining NaN values with 'no_value' 
     full_foods['food_common_name'].fillna('no_value', inplace=True)
