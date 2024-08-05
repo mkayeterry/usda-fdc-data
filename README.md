@@ -36,7 +36,14 @@ This repository contains scripts to download and process datasets from the USDA 
    - Missing values are filled.
    - The resulting data is saved within the output directory as a CSV file (unless otherwise specified in `filename` argument).
 
-3. **Cleanup**:
+3. **Postprocessing**:
+    - The postprocess_stacked_df function finalizes the cleaning of USDA concatenated datasets by:
+        - Resetting the indices
+        - Setting data types
+        - Filling missing values
+        - Cleaning string data
+
+4. **Cleanup**:
    - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified in arguments.
 
 
@@ -49,7 +56,9 @@ This repository contains scripts to download and process datasets from the USDA 
 
     - Python 3.6 or later
     - pandas
-    - BeautifulSoup
+    - requests
+    - pyarrow
+    - beautifulsoup4
     - ingredient-slicer
 
 
