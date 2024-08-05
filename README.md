@@ -35,7 +35,7 @@ This repository contains scripts to download and process datasets from the USDA 
    - The data is stacked together.
 
 3. **Postprocessing**:
-    - The postprocess_stacked_df function finalizes the cleaning of USDA concatenated datasets by:
+    - The concatenated datasets are then postprocessed and finalized by:
         - Resetting the indices
         - Setting data types
         - Filling missing values

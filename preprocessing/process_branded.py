@@ -19,7 +19,7 @@ def process_branded(
     # Find the directory containing the downloaded files to define branded_dir
     for path in os.listdir(raw_dir):
         if 'branded' in path:
-            print(f'Found branded data in: {path}\n')
+            print(f'Found branded data in:\n> {path}\n')
             branded_dir = os.path.join(raw_dir, path)
             source = define_source(branded_dir)[0]
 
