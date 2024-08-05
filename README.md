@@ -33,8 +33,6 @@ This repository contains scripts to download and process datasets from the USDA 
 2. **Data Stacking**:
    - Upon completion of individual processing, intermediary Parquet files are read into `main.py`.
    - The data is stacked together.
-   - Missing values are filled.
-   - The resulting data is saved within the output directory as a CSV file.
 
 3. **Postprocessing**:
     - The postprocess_stacked_df function finalizes the cleaning of USDA concatenated datasets by:
@@ -43,8 +41,9 @@ This repository contains scripts to download and process datasets from the USDA 
         - Filling missing values
         - Cleaning string data
 
-4. **Cleanup**:
+4. **Cleanup and Save**:
    - Any remaining files other than the complete, processed data are deleted unless the `keep_files` flag is specified in arguments.
+   - The finalized, stacked dataset is saved within the output directory as a CSV file.
 
 
 <br/>
