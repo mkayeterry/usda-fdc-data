@@ -85,7 +85,7 @@ This repository contains scripts to download and process datasets from the USDA 
 
     `--output_dir`: Specify the output directory path (default: `fdc_data`).<br/>
     `--filename`: Specify output filename (default: `usda_food_nutrition_data.csv`).<br/>
-    `--keep_files`: Keep raw and individual files after processing (for optimal memory utilization).
+    `--keep_files`: Keep raw and individual files after processing **(warning: files are large)**.
 
     ```bash
     python3 main.py --output_dir data -- filename data.csv --keep_files
@@ -95,32 +95,40 @@ This repository contains scripts to download and process datasets from the USDA 
 
 - ### **Output Data**
 
-    The processed USDA data contains a total of 650,701 entries and 78 columns. The output data is standardized and contains the following information:
+    The processed USDA output data is standardized and contains the following information:
 
     #### **String Identifiers**
     - **`fdc_id`**: The unique identifier assigned to each food item within the USDA Food Data Central.
     - **`usda_data_source`**: Indicates the source of the food item, denoting the specific downloaded file it originated from.
     - **`data_type`**: Describes the type of data associated with the food item, including branded, foundation, or sr_legacy.
     - **`category`**: The category or type of food.
-    - **`brand_owner`**: The owner or manufacturer of the brand, for branded_foods only.
+    - **`brand_owner`**: The owner or manufacturer of the brand, for branded_foods only. 
     - **`brand_name`**: The name of the brand, for branded_foods only.
     - **`food_description`**: A description of the food item.
+    - **`food_common_name`**: Name food is most commonly known by, for foundation foods only.
+    - **`food_common_category`**: Category food is most commonly known to be in, for foundation foods only
     - **`ingredients`**: The ingredients used in the food item, for branded_foods only.
+    
+    <br>
 
     #### **Portion Specifications**
     - **`portion_amount`**: The amount of the food item in the portion.
     - **`portion_unit`**: The unit of measurement for the portion.
-    - **`portion_modifier`**: Any modifier applied to the portion, such as "large" or "1/8 of crust".
-    - **`portion_gram_weight`**: The weight of the portion in grams.
-    - **`portion_energy`**: The energy content in calories per portion.
+    - **`portion_modifier`**: Any modifier applied to the portion (such as "large" or "1/8 of crust").
     - **`std_portion_amount`**: Standardized portion amount, derived from the combination of portion_amount, portion_unit, and portion_modifier (i.e. 'one' --> 1).
     - **`std_portion_unit`**: Standardized portion unit, derived from the combination of portion_amount, portion_unit, and portion_modifier (i.e. 'oz' --> 'ounces').
+    - **`portion_gram_weight`**: The weight of the portion in grams.
+    - **`portion_energy`**: The energy content in calories per portion.
+    
+    <br>
 
     #### **Macronutrients Per Gram**
     - **`energy`**: The energy content per gram of the food item.
     - **`protein`**: The protein content per gram of the food item.
     - **`total_lipid_fat`**: The total lipid (fat) content per gram of the food item.
     - **`carbohydrate_by_difference`**: The carbohydrate content per gram of the food item.
+
+    <br>
 
     #### **Minerals Per Gram**
     - **`calcium_ca`**: Calcium
@@ -133,6 +141,8 @@ This repository contains scripts to download and process datasets from the USDA 
     - **`copper_cu`**: Copper
     - **`manganese_mn`**: Manganese
     - **`selenium_se`**: Selenium
+    
+    <br>
 
     #### **Vitamins Per Gram**
     - **`vitamin_a_rae`**: Vitamin A
@@ -152,12 +162,18 @@ This repository contains scripts to download and process datasets from the USDA 
     - **`vitamin_k_menaquinone4`**: Vitamin K2 (Menaquinone-4)
     - **`carotene_beta`**: Beta-Carotene
     - **`retinol`**: Retinol (Vitamin A1)
+    
+    <br>
 
     #### **Amino Acids Per Gram**
     - **`tryptophan`**, **`threonine`**, **`methionine`**, **`phenylalanine`**, **`tyrosine`**, **`valine`**, **`arginine`**, **`histidine`**, **`isoleucine`**, **`leucine`**, **`lysine`**, **`cystine`**, **`alanine`**, **`glutamic_acid`**, **`glycine`**, **`proline`**, **`serine`**
+    
+    <br>
 
     #### **Carbohydrates and Sugars Per Gram**
     - **`sucrose`**, **`glucose`**, **`maltose`**, **`fructose`**, **`lactose`**, **`galactose`**
+    
+    <br>
 
     #### **Other Compounds Per Gram**
     - **`choline_total`**: Total Choline
