@@ -66,13 +66,13 @@ This repository contains scripts to download and process datasets from the USDA 
     1. Clone the repository:
 
         ```bash
-        git clone https://github.com/your_username/usda-fdc
+        git clone git clone https://github.com/mkayeterry/usda-fdc-data
         ```
 
     2. Navigate to the repository directory:
 
         ```bash
-        cd usda-fdc
+        cd usda-fdc-data
         ```
 
     3. Run the main script:
