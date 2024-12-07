@@ -48,7 +48,6 @@ OUTPUT_DIR = args.output_dir
 RAW_DIR = os.path.join(OUTPUT_DIR, 'FoodData_Central_raw')
 print(
     f'\nInitializing processing of USDA FDC data. Output directory set to:\n> {OUTPUT_DIR}\n')
-
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
     print(f'Directory created:\n> {OUTPUT_DIR}\n')

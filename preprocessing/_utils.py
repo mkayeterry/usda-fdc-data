@@ -10,27 +10,32 @@ import pandas as pd
 from preprocessing import _constants
 
 
-def get_usda_urls(USDA_URL="https://fdc.nal.usda.gov/download-datasets.html", URL_PREFIX="https://fdc.nal.usda.gov"):
+def get_usda_urls():
+    # def get_usda_urls(USDA_URL="https://fdc.nal.usda.gov/download-datasets", URL_PREFIX="https://fdc.nal.usda.gov"):
     """
     Retrieve URLs for downloading USDA CSV files from the USDA website.
 
     Returns:
         csv_download_links (list of str): A list of URLs pointing to the downloadable CSV files.
     """
-    # Get USDA HTML content
-    html_content = requests.get(USDA_URL).text
-    soup = BeautifulSoup(html_content, 'html.parser')
+    # # Get USDA HTML content
+    # response = requests.get(USDA_URL)
+    # html_content = response.content
+    # soup = BeautifulSoup(html_content, 'html.parser')
 
-    # Find table with the H2 tag "Latest Downloads" above it
-    latest_downloads_table = soup.find(
-        'h2', text='Latest Downloads').find_next('table')
+    # # Find table with the H2 tag "Latest Downloads" above it
+    # latest_downloads_table = soup.find(
+    #     'h2', text='Latest Downloads').find_next('table')
 
-    # Find all <a> tags in the table
-    download_a_tags = latest_downloads_table.find_all('a', href=True)
+    # # Find all <a> tags in the table
+    # download_a_tags = latest_downloads_table.find_all('a', href=True)
 
-    # Extract the href attribute from each <a> tag
-    csv_download_links = [URL_PREFIX + link['href']
-                          for link in download_a_tags if 'csv' in link['href'] and "survey_food" not in link["href"]]
+    # # Extract the href attribute from each <a> tag
+    # csv_download_links = [URL_PREFIX + link['href']
+    #                       for link in download_a_tags if 'csv' in link['href'] and "survey_food" not in link["href"]]
+
+    csv_download_links = ['https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2024-10-31.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip',
+                          'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_branded_food_csv_2024-10-31.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_csv_2024-10-31.zip']
 
     return csv_download_links
 

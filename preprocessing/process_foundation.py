@@ -100,13 +100,16 @@ def process_foundation(
 
     # Filter food attributes to just the relevant columns
     food_attribute = food_attribute[food_attribute['attribute_name'].isin(
-        ["Ontology Name for Source", "FoodOn Ontology Name for FDC Item"])]
+        ["Ontology Name For Source", "FoodOn Ontology Name For FDC Item"])]
 
     # Set the food attribute long row value names to something shorter and more descriptive
-    food_attribute['attribute_name'][food_attribute['attribute_name']
-                                     == "Ontology Name for Source"] = "food_common_category"
-    food_attribute['attribute_name'][food_attribute['attribute_name']
-                                     == "FoodOn Ontology Name for FDC Item"] = "food_common_name"
+    food_attribute.loc[
+        food_attribute['attribute_name'] == "Ontology Name For Source", 'attribute_name'
+    ] = "food_common_category"
+
+    food_attribute.loc[
+        food_attribute['attribute_name'] == "FoodOn Ontology Name For FDC Item", 'attribute_name'
+    ] = "food_common_name"
 
     # Group by the fdc_id and attribute_name and slice off the head of each group
     food_attribute = food_attribute.groupby(['fdc_id', 'attribute_name']).first(
